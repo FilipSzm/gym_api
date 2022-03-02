@@ -21,7 +21,7 @@ public class CoachesRepository {
     }
 
     public Coach patchCoachWithId(int coachId, Coach coach) {
-        return allCoaches.put(coachId, coach);
+        return allCoaches.replace(coachId, coach);
     }
 
     public Coach removeCoachWithId(int coachId) {

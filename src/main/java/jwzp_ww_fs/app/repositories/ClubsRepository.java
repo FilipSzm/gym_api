@@ -20,7 +20,7 @@ public class ClubsRepository {
     }
 
     public Club patchClubWithId(int clubId, Club club) {
-        return allClubs.put(clubId, club);
+        return allClubs.replace(clubId, club);
     }
 
     public Club removeClubWithId(int clubId) {
