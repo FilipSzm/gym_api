@@ -1,7 +1,6 @@
 package jwzp_ww_fs.app.repositories;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -16,10 +15,7 @@ public class EventsRepository {
     private Map<Integer, Event> allEvents = new HashMap<>();
 
     public Event addEvent(Event event) {
-        if (event == null) {
-            System.out.println("test");
-            return null;
-        }
+        if (event == null) return null;
 
         return allEvents.put(nextId.incrementAndGet(), event);
     }
@@ -28,7 +24,15 @@ public class EventsRepository {
         return allEvents.remove(eventId);
     }
 
+    public Event updateEvent(int eventId, Event event) {
+        return allEvents.replace(eventId, event);
+    }
+
     public List<Event> getAllEvents() {
         return allEvents.values().stream().toList();
+    }
+
+    public Event getEvent(int id) {
+        return allEvents.get(id);
     }
 }

@@ -4,20 +4,10 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalTime;
 
-public record Event(String title, DayOfWeek day, LocalTime time, Duration duration, int clubId, int coachId) {
-    // @Override
-    // public boolean equals(Object other) {
-    //     if (other == null) return false;
+public record Event(String title, DayOfWeek day, LocalTime time, Duration duration, int clubId, int coachId) implements Comparable<Event>{
 
-    //     if (other instanceof Event otherEvent) {
-    //         return otherEvent.eventId == this.eventId;
-    //     }
-
-    //     return false;
-    // }
-
-    // @Override
-    // public int hashCode() {
-    //     return eventId;
-    // }
+    @Override
+    public int compareTo(Event other) {
+        return this.time.compareTo(other.time);
+    }
 }
