@@ -28,4 +28,20 @@ public class EventsService {
     public List<Event> getAllEvents() {
         return repository.getAllEvents();
     }
+
+    public List<Event> getEventsByCoach(int coachId) {
+        return repository.getAllEvents().stream().filter(c -> c.coachId() == coachId).toList();
+    }
+
+    public List<Event> getEventsByClub(int clubId) {
+        return repository.getAllEvents().stream().filter(c -> c.clubId() == clubId).toList();
+    }
+
+    public List<Event> getEventsByCoachAndClub(int coachId, int clubId) {
+        return repository.getAllEvents().stream().filter(c -> c.coachId() == coachId && c.clubId() == clubId).toList();
+    }
+
+    public Event getEvent(int id) {
+        return repository.getEvent(id);
+    }
 }
