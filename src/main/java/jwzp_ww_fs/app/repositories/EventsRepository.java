@@ -24,6 +24,10 @@ public class EventsRepository {
         return allEvents.remove(eventId);
     }
 
+    public Event updateEvent(int eventId, Event event) {
+        return allEvents.replace(eventId, event);
+    }
+
     public List<Event> getAllEvents() {
         return allEvents.values().stream().toList();
     }
