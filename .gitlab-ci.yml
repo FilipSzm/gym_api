@@ -40,4 +40,4 @@ heroku-deploy:
   script:
     - docker build --build-arg JAR_FILE=`ls build/libs/*.jar` --tag registry.heroku.com/$APP_NAME/web .
     - docker push registry.heroku.com/$APP_NAME/web
-    - ./relese-docker-in-heroku.sh $APP_NAME $HEROKU_KEY
+    - ./release-docker-in-heroku.sh $APP_NAME $HEROKU_KEY
