@@ -5,11 +5,19 @@ plugins {
 }
 
 group = 'jwzp_ww_fs'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 sourceCompatibility = '17'
 
 repositories {
 	mavenCentral()
+}
+
+springBoot {
+	mainClass = 'uj.jwzp.areso.gyms.GymsApplication'
+}
+
+jar {
+	enabled = false
 }
 
 dependencies {

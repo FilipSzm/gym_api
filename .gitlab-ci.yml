@@ -6,8 +6,38 @@
 # Note that environment variables can be set in several places
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 stages:
-- test
-sast:
-  stage: test
-include:
-- template: Security/SAST.gitlab-ci.yml
+  - build
+  - deploy
+
+gradle-build:
+  image: gradle:7.4-jdk17-alpine
+  stage: build
+  before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+  script:
+    - gradle clean build
+  artifacts:
+    paths:
+      - build/libs/*.jar
+  cache:
+    key: gradle-cache
+    paths:
+      - .gradle/caches
+
+
+heroku-deploy:
+  image: docker:stable
+  stage: : deploy
+  variables:
+    CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+  services:
+    - docker:dind
+  before_script:
+    - docker login --username=$HEROKU_USERNAME --password=$HEROKU_KEY registry.heroku.com
+    - apk add --update curl && rm -rf /var/cache/apk/*
+  script:
+    - docker build --build-arg JAR_FILE=`ls build/libs/*.jar` --tag registry.heroku.com/$APP_NAME/web .
+    - docker push registry.heroku.com/$APP_NAME/web
+    - ./relese-docker-in-heroku.sh $APP_NAME $HEROKU_KEY
