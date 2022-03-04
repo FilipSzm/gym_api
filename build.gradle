@@ -13,7 +13,7 @@ repositories {
 }
 
 springBoot {
-	mainClass = 'uj.jwzp.areso.gyms.GymsApplication'
+	mainClass = 'jwzp_ww_fs.app.AppApplication'
 }
 
 jar {
