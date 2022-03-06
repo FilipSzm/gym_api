@@ -1,7 +1,6 @@
 package jwzp_ww_fs.app.controllers;
 
 import jwzp_ww_fs.app.models.Club;
-import jwzp_ww_fs.app.models.Coach;
 import jwzp_ww_fs.app.services.ClubsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

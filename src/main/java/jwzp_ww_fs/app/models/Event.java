@@ -8,6 +8,7 @@ public record Event(String title, DayOfWeek day, LocalTime time, Duration durati
 
     @Override
     public int compareTo(Event other) {
-        return this.time.compareTo(other.time);
+        int daysComparasion = this.day.compareTo(other.day);
+        return (daysComparasion == 0) ? this.time.compareTo(other.time) : daysComparasion;
     }
 }

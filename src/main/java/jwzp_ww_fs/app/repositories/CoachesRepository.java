@@ -1,6 +1,5 @@
 package jwzp_ww_fs.app.repositories;
 
-import jwzp_ww_fs.app.models.Club;
 import jwzp_ww_fs.app.models.Coach;
 import org.springframework.stereotype.Repository;
 
