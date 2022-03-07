@@ -3,11 +3,13 @@ package jwzp_ww_fs.app.controllers;
 import jwzp_ww_fs.app.models.Club;
 import jwzp_ww_fs.app.services.ClubsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/clubs")
 public class ClubsController {
 
     private final ClubsService service;
@@ -17,28 +19,39 @@ public class ClubsController {
         this.service = service;
     }
 
-    @GetMapping("/api/clubs")
+    @GetMapping("")
     public List<Club> getAllClubs() {
         return service.getAllClubs();
     }
 
-    @GetMapping("/api/clubs/{clubId}")
+    @GetMapping("/{clubId}")
     public Club getClub(@PathVariable int clubId) {
         return service.getClub(clubId);
     }
 
-    @PostMapping("/api/clubs")
+    @PostMapping("")
     public Club addClub(@RequestBody Club club) {
         return service.addClub(club);
     }
 
-    @DeleteMapping("/api/clubs/{clubId}")
-    public Club removeCoach(@PathVariable int clubId) {
-        return service.removeClub(clubId);
+    @DeleteMapping("/{clubId}")
+    public ResponseEntity<?> removeCoach(@PathVariable int clubId) {
+        Club removed = service.removeClub(clubId);
+
+        if (removed == null) return ResponseEntity.badRequest().body("Could not remove club with that ID");
+        return ResponseEntity.ok().body(removed);
     }
 
-    @PatchMapping("/api/clubs/{clubId}")
-    public Club patchClub(@PathVariable int clubId, @RequestBody Club club) {
-        return service.patchClub(clubId, club);
+    @DeleteMapping("")
+    public List<Club> removeAllClubs() {
+        return service.removeAllClubs();
+    }
+
+    @PatchMapping("/{clubId}")
+    public ResponseEntity<?> patchClub(@PathVariable int clubId, @RequestBody Club club) {
+        Club patched = service.patchClub(clubId, club);
+
+        if (patched == null) return ResponseEntity.badRequest().body("Could not update club with that ID");
+        return ResponseEntity.ok().body(patched);
     }
 }
