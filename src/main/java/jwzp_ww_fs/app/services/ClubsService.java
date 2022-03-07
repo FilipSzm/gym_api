@@ -28,6 +28,10 @@ public class ClubsService {
         return repository.removeClubWithId(clubId);
     }
 
+    public List<Club> removeAllClubs() {
+        return repository.removeAllClubs();
+    }
+
     public List<Club> getAllClubs() {
         return repository.getAllClubs();
     }

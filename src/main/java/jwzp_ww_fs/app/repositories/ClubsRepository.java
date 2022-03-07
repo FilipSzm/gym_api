@@ -27,6 +27,14 @@ public class ClubsRepository {
         return allClubs.remove(clubId);
     }
 
+    public List<Club> removeAllClubs() {
+        List<Club> removed = allClubs.values().stream().toList();
+
+        allClubs.clear();
+
+        return removed;
+    }
+
     public List<Club> getAllClubs() {
         return allClubs.values().stream().toList();
     }

@@ -11,13 +11,21 @@ import jwzp_ww_fs.app.models.Event;
 
 @Repository
 public class EventsRepository {
-    AtomicInteger nextId = new AtomicInteger();
-    private Map<Integer, Event> allEvents = new HashMap<>();
+    private final AtomicInteger nextId = new AtomicInteger();
+    private final Map<Integer, Event> allEvents = new HashMap<>();
 
     public Event addEvent(Event event) {
         if (event == null) return null;
 
         return allEvents.put(nextId.incrementAndGet(), event);
+    }
+
+    public List<Event> removeAllEvents() {
+        List<Event> removedEvents = allEvents.values().stream().toList();
+
+        allEvents.clear();
+
+        return removedEvents;
     }
 
     public Event removeEventWithId(int eventId) {

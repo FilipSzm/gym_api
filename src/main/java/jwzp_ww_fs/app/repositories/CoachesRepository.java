@@ -1,6 +1,5 @@
 package jwzp_ww_fs.app.repositories;
 
-import jwzp_ww_fs.app.models.Club;
 import jwzp_ww_fs.app.models.Coach;
 import org.springframework.stereotype.Repository;
 
@@ -26,6 +25,14 @@ public class CoachesRepository {
 
     public Coach removeCoachWithId(int coachId) {
         return allCoaches.remove(coachId);
+    }
+
+    public List<Coach> removeAllCoaches() {
+        List<Coach> removed = allCoaches.values().stream().toList();
+
+        allCoaches.clear();
+
+        return removed;
     }
 
     public List<Coach> getAllCoaches() {

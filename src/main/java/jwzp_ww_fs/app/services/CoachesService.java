@@ -28,6 +28,10 @@ public class CoachesService {
         return repository.removeCoachWithId(coachId);
     }
 
+    public List<Coach> removeAllCoaches() {
+        return repository.removeAllCoaches();
+    }
+
     public List<Coach> getAllCoaches() {
         return repository.getAllCoaches();
     }
