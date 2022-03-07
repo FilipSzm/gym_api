@@ -27,6 +27,14 @@ public class CoachesRepository {
         return allCoaches.remove(coachId);
     }
 
+    public List<Coach> removeAllCoaches() {
+        List<Coach> removed = allCoaches.values().stream().toList();
+
+        allCoaches.clear();
+
+        return removed;
+    }
+
     public List<Coach> getAllCoaches() {
         return allCoaches.values().stream().toList();
     }
