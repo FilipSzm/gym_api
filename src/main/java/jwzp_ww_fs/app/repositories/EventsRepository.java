@@ -20,6 +20,14 @@ public class EventsRepository {
         return allEvents.put(nextId.incrementAndGet(), event);
     }
 
+    public List<Event> removeAllEvents() {
+        List<Event> removedEvents = allEvents.values().stream().toList();
+
+        allEvents = new HashMap<>();
+
+        return removedEvents;
+    }
+
     public Event removeEventWithId(int eventId) {
         return allEvents.remove(eventId);
     }

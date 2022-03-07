@@ -25,6 +25,10 @@ public class EventsService {
         return repository.removeEventWithId(eventId);
     }
 
+    public List<Event> removeAllEvents() {
+        return repository.removeAllEvents();
+    }
+
     public Event updateEvent(int eventId, Event event) {
         return repository.updateEvent(eventId, event);
     }
