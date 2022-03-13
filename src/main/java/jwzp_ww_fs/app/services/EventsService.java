@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import jwzp_ww_fs.app.Exceptions.EventCoachOverlapException;
 import jwzp_ww_fs.app.Exceptions.EventNoSuchClubException;
+import jwzp_ww_fs.app.Exceptions.EventNoSuchCoachException;
 import jwzp_ww_fs.app.Exceptions.EventNotInOpeningHoursException;
 import jwzp_ww_fs.app.Exceptions.EventTooLongException;
 import jwzp_ww_fs.app.Exceptions.GymException;
@@ -32,7 +33,7 @@ public class EventsService {
 
     public Event addEvent(Event event) throws GymException {
         if (!existsClubForEvent(event)) throw new EventNoSuchClubException();
-        if (!existsCoachForEvent(event)) throw new EventNoSuchClubException();
+        if (!existsCoachForEvent(event)) throw new EventNoSuchCoachException();
         if (existsSimultaniousEventWithCoach(event)) throw new EventCoachOverlapException();
         if (!isEventInClubOpeningHours(event)) throw new EventNotInOpeningHoursException();
         if (!isEventCorrectLength(event)) throw new EventTooLongException();
@@ -41,7 +42,7 @@ public class EventsService {
     }
 
     private boolean isEventCorrectLength(Event eventToAdd) {
-        return eventToAdd.duration().compareTo(Duration.ofDays(1)) < 0;
+        return eventToAdd.duration().compareTo(Duration.ofDays(1)) <= 0;
     }
 
     private boolean isEventInClubOpeningHours(Event eventToAdd) {
@@ -51,7 +52,7 @@ public class EventsService {
         if (beg.isBefore(end)) {
             OpeningHours openingHours = clubsService.getClub(eventToAdd.clubId()).whenOpen().get(eventToAdd.day());
             if (openingHours.from().equals(openingHours.to())) return true;
-            return !openingHours.from().isAfter(beg) && !openingHours.to().isBefore(end);
+            return !openingHours.from().isAfter(beg) && ((!openingHours.to().isBefore(end)) || (openingHours.to().equals(LocalTime.MIDNIGHT)));
         } else {
             OpeningHours firstDay = clubsService.getClub(eventToAdd.clubId()).whenOpen().get(eventToAdd.day());
             OpeningHours secondDay = clubsService.getClub(eventToAdd.clubId()).whenOpen().get(eventToAdd.day().plus(1));
