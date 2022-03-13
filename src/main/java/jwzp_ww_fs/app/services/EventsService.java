@@ -1,5 +1,6 @@
 package jwzp_ww_fs.app.services;
 
+import java.time.Duration;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import jwzp_ww_fs.app.Exceptions.EventCoachOverlapException;
 import jwzp_ww_fs.app.Exceptions.EventNoSuchClubException;
 import jwzp_ww_fs.app.Exceptions.EventNotInOpeningHoursException;
+import jwzp_ww_fs.app.Exceptions.EventTooLongException;
 import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.Event;
 import jwzp_ww_fs.app.models.OpeningHours;
@@ -33,8 +35,13 @@ public class EventsService {
         if (!existsCoachForEvent(event)) throw new EventNoSuchClubException();
         if (existsSimultaniousEventWithCoach(event)) throw new EventCoachOverlapException();
         if (!isEventInClubOpeningHours(event)) throw new EventNotInOpeningHoursException();
+        if (!isEventCorrectLength(event)) throw new EventTooLongException();
 
         return repository.addEvent(event);
+    }
+
+    private boolean isEventCorrectLength(Event eventToAdd) {
+        return eventToAdd.duration().compareTo(Duration.ofDays(1)) < 0;
     }
 
     private boolean isEventInClubOpeningHours(Event eventToAdd) {
