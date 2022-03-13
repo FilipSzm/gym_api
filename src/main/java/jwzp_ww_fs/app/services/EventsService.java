@@ -140,17 +140,6 @@ public class EventsService {
         return repository.getAllEvents().stream().filter(c -> c.coachId() == coachId && c.clubId() == clubId).toList();
     }
 
-    // private Map<DayOfWeek, List<Event>> eventsToSchedule(List<Event> events) {
-    //     Map<DayOfWeek, List<Event>> result = new TreeMap<>(); 
-        
-    //     for (var dayOfWeek : DayOfWeek.values()) {
-    //         List<Event> eventsForDay = events.stream().filter(e -> e.day().equals(dayOfWeek)).toList();
-    //         result.put(dayOfWeek, eventsForDay);
-    //     }
-
-    //     return result;
-    // }
-
     public Event getEvent(int id) {
         return repository.getEvent(id);
     }
