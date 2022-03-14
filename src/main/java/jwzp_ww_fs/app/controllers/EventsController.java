@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jwzp_ww_fs.app.Exceptions.EventDoesNotExistException;
 import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.Event;
 import jwzp_ww_fs.app.services.EventsService;
@@ -42,8 +43,8 @@ public class EventsController {
     @PostMapping("")
     public ResponseEntity<?> addEvent(@RequestBody Event event) {
         try {
-            Event addedEvent = service.addEvent(event);
-            return ResponseEntity.ok().body(addedEvent);
+            service.addEvent(event);
+            return ResponseEntity.ok().body(event);
         } catch (GymException ex) {
             return ResponseEntity.badRequest().body(ex.getErrorInfo());
         }
@@ -61,17 +62,19 @@ public class EventsController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEvent(@PathVariable int id) {
-        Event removed = service.removeEvent(id);
-        
-        if (removed == null) return ResponseEntity.badRequest().body("Could not remove event with that ID");
-        return ResponseEntity.ok().body(removed);
+        try {
+            return ResponseEntity.ok().body(service.removeEvent(id)); 
+        } catch (EventDoesNotExistException ex) {
+            return ResponseEntity.badRequest().body(ex.getErrorInfo());
+        }
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<?> updateEvent(@PathVariable int id, @RequestBody Event event) {
-        Event changed = service.updateEvent(id, event);
-        
-        if (changed == null) return ResponseEntity.badRequest().body("Could not update event with that ID");
-        return ResponseEntity.ok().body(changed);
+        try {
+            return ResponseEntity.ok().body(service.updateEvent(id, event)); 
+        } catch (GymException ex) {
+            return ResponseEntity.badRequest().body(ex.getErrorInfo());
+        }
     }
 }
