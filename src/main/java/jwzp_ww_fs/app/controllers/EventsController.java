@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.Event;
 import jwzp_ww_fs.app.services.EventsService;
 
@@ -39,8 +40,13 @@ public class EventsController {
     }
 
     @PostMapping("")
-    public Event addEvent(@RequestBody Event event) {
-        return service.addEvent(event);
+    public ResponseEntity<?> addEvent(@RequestBody Event event) {
+        try {
+            Event addedEvent = service.addEvent(event);
+            return ResponseEntity.ok().body(addedEvent);
+        } catch (GymException ex) {
+            return ResponseEntity.badRequest().body(ex.getErrorInfo());
+        }
     }
 
     @DeleteMapping("")
