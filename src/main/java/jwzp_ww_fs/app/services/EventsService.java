@@ -33,51 +33,17 @@ public class EventsService {
     }
 
     public Event addEvent(Event event) throws GymException {
-        if (!existsClubForEvent(event))
-            throw new EventNoSuchClubException();
-        if (!existsCoachForEvent(event))
-            throw new EventNoSuchCoachException();
-        if (existsSimultaniousEventWithCoach(event, null))
-            throw new EventCoachOverlapException();
-        if (!isEventInClubOpeningHours(event))
-            throw new EventNotInOpeningHoursException();
-        if (!isEventCorrectLength(event))
-            throw new EventTooLongException();
+        if (!existsClubForEvent(event)) throw new EventNoSuchClubException();
+        if (!existsCoachForEvent(event)) throw new EventNoSuchCoachException();
+        if (existsSimultaniousEventWithCoach(event)) throw new EventCoachOverlapException();
+        if (!clubsService.isEventInClubOpeningHours(event)) throw new EventNotInOpeningHoursException();
+        if (!isEventCorrectLength(event)) throw new EventTooLongException();
 
         return repository.addEvent(event);
     }
 
     private boolean isEventCorrectLength(Event eventToAdd) {
         return eventToAdd.duration().compareTo(Duration.ofDays(1)) <= 0;
-    }
-
-    private boolean isEventInClubOpeningHours(Event eventToAdd) {
-        LocalTime beg = eventToAdd.time();
-        LocalTime end = eventToAdd.time().plus(eventToAdd.duration());
-
-        if (beg.isBefore(end)) {
-            OpeningHours openingHours = clubsService.getClub(eventToAdd.clubId()).whenOpen().get(eventToAdd.day());
-            if (openingHours.from().equals(openingHours.to()))
-                return true;
-            return !openingHours.from().isAfter(beg)
-                    && ((!openingHours.to().isBefore(end)) || (openingHours.to().equals(LocalTime.MIDNIGHT)));
-        } else {
-            OpeningHours firstDay = clubsService.getClub(eventToAdd.clubId()).whenOpen().get(eventToAdd.day());
-            OpeningHours secondDay = clubsService.getClub(eventToAdd.clubId()).whenOpen().get(eventToAdd.day().plus(1));
-
-            boolean firstDayOk, secondDayOk;
-            if (firstDay.from().equals(firstDay.to()))
-                firstDayOk = true;
-            else
-                firstDayOk = !firstDay.from().isAfter(beg) && firstDay.to().equals(LocalTime.MIDNIGHT);
-
-            if (secondDay.from().equals(secondDay.to()))
-                secondDayOk = true;
-            else
-                secondDayOk = secondDay.from().equals(LocalTime.MIDNIGHT) && !secondDay.to().isBefore(end);
-
-            return firstDayOk && secondDayOk;
-        }
     }
 
     private boolean existsClubForEvent(Event eventToAdd) {
