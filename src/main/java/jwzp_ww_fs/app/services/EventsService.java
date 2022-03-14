@@ -15,7 +15,6 @@ import jwzp_ww_fs.app.Exceptions.EventNotInOpeningHoursException;
 import jwzp_ww_fs.app.Exceptions.EventTooLongException;
 import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.Event;
-import jwzp_ww_fs.app.models.OpeningHours;
 import jwzp_ww_fs.app.repositories.EventsRepository;
 
 @Service
@@ -35,7 +34,7 @@ public class EventsService {
     public Event addEvent(Event event) throws GymException {
         if (!existsClubForEvent(event)) throw new EventNoSuchClubException();
         if (!existsCoachForEvent(event)) throw new EventNoSuchCoachException();
-        if (existsSimultaniousEventWithCoach(event)) throw new EventCoachOverlapException();
+        if (existsSimultaniousEventWithCoach(event, null)) throw new EventCoachOverlapException();
         if (!clubsService.isEventInClubOpeningHours(event)) throw new EventNotInOpeningHoursException();
         if (!isEventCorrectLength(event)) throw new EventTooLongException();
 
@@ -124,7 +123,7 @@ public class EventsService {
             throw new EventNoSuchCoachException();
         if (existsSimultaniousEventWithCoach(event, currentEventWithId))
             throw new EventCoachOverlapException();
-        if (!isEventInClubOpeningHours(event))
+        if (!clubsService.isEventInClubOpeningHours(event))
             throw new EventNotInOpeningHoursException();
         if (!isEventCorrectLength(event))
             throw new EventTooLongException();
