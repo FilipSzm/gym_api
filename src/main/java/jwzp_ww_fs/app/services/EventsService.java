@@ -1,8 +1,12 @@
 package jwzp_ww_fs.app.services;
 
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +19,7 @@ import jwzp_ww_fs.app.Exceptions.EventNotInOpeningHoursException;
 import jwzp_ww_fs.app.Exceptions.EventTooLongException;
 import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.Event;
+import jwzp_ww_fs.app.models.OpeningHours;
 import jwzp_ww_fs.app.repositories.EventsRepository;
 
 @Service
@@ -38,7 +43,46 @@ public class EventsService {
         if (!clubsService.isEventInClubOpeningHours(event)) throw new EventNotInOpeningHoursException();
         if (!isEventCorrectLength(event)) throw new EventTooLongException();
 
+        clubsService.addEventToClub(event.clubId());
+        clubsService.setFillLevel(event.clubId(), getMinimalOpeningHoursForClub(event));
+        coachesService.addEventForCoach(event.coachId());
+
         return repository.addEvent(event);
+    }
+
+    private Map<DayOfWeek, OpeningHours> getMinimalOpeningHoursForClub(Event eventToAdd) {
+        var clubEvents = Stream.concat(Stream.of(eventToAdd), getEventsByClub(eventToAdd.clubId()).stream()).toList();
+
+        var result = new HashMap<DayOfWeek, OpeningHours>();
+        for (DayOfWeek day : DayOfWeek.values()) {
+            result.put(day, getDayMinOpeningHours(day, clubEvents));
+        }
+        return result;
+    }
+
+    private OpeningHours getDayMinOpeningHours(DayOfWeek day, List<Event> events) {
+        var pervDay = events.stream().filter(e -> e.day().equals(day.minus(1)));
+        var currDay = events.stream().filter(e -> e.day().equals(day)).toList();
+
+        LocalTime minBeg, minEnd;
+        if (pervDay.anyMatch(this::isEventOverMidnight)) minBeg = LocalTime.MIDNIGHT;
+        else {
+            if (currDay.size() == 0) return null;
+            minBeg = LocalTime.MAX;
+            for(Event e : currDay) {
+                if (minBeg.isAfter(e.time())) minBeg = e.time();
+            }
+        }
+
+        if (currDay.stream().anyMatch(this::isEventOverMidnight)) minEnd = LocalTime.MIDNIGHT;
+        else {
+            minEnd = LocalTime.MIN;
+            for(Event e : currDay) {
+                if (minEnd.isBefore(e.time().plus(e.duration()))) minEnd = e.time().plus(e.duration());
+            }
+        }
+
+        return new OpeningHours(minBeg, minEnd);
     }
 
     private boolean isEventCorrectLength(Event eventToAdd) {
@@ -109,6 +153,14 @@ public class EventsService {
     }
 
     public List<Event> removeAllEvents() {
+        var allEvents = getAllEvents();
+
+        for (Event e : allEvents) {
+            clubsService.subtractEventFromClub(e.clubId());
+            clubsService.setFillLevel(e.clubId(), new HashMap<DayOfWeek, OpeningHours>());
+            coachesService.subtractEventFromCoach(e.coachId());
+        }
+
         return repository.removeAllEvents();
     }
 
