@@ -1,6 +1,7 @@
 package jwzp_ww_fs.app.services;
 
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -16,6 +17,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -28,7 +30,6 @@ import jwzp_ww_fs.app.Exceptions.EventTooLongException;
 import jwzp_ww_fs.app.models.Club;
 import jwzp_ww_fs.app.models.Coach;
 import jwzp_ww_fs.app.models.Event;
-import jwzp_ww_fs.app.models.OpeningHours;
 import jwzp_ww_fs.app.repositories.EventsRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,16 +58,7 @@ public class EventsServiceTest {
 
         lenient().when(repository.getAllEvents()).thenReturn(exampleEvents);
         
-        Map<DayOfWeek, OpeningHours> exampleOpening = Map.of(
-            DayOfWeek.MONDAY, new OpeningHours(LocalTime.of(0, 0), LocalTime.of(0, 0)),
-            DayOfWeek.TUESDAY, new OpeningHours(LocalTime.of(9, 0), LocalTime.of(20, 0)),
-            DayOfWeek.WEDNESDAY, new OpeningHours(LocalTime.of(0, 0), LocalTime.of(0, 0)),
-            DayOfWeek.THURSDAY, new OpeningHours(LocalTime.of(0, 0), LocalTime.of(20, 0)),
-            DayOfWeek.FRIDAY, new OpeningHours(LocalTime.of(6, 0), LocalTime.of(0, 0)),
-            DayOfWeek.SATURDAY, new OpeningHours(LocalTime.of(0, 0), LocalTime.of(0, 0)),
-            DayOfWeek.SUNDAY, new OpeningHours(LocalTime.of(0, 0), LocalTime.of(23, 59))
-        );
-        Club exampleClub = new Club("name", "address", exampleOpening);
+        Club exampleClub = new Club("name", "address", null);
         lenient().when(clubsService.getClub(1)).thenReturn(exampleClub);
         lenient().when(clubsService.getClub(2)).thenReturn(null);
 
@@ -77,7 +69,9 @@ public class EventsServiceTest {
 
     @ParameterizedTest(name="exceptions POST {0}")
     @MethodSource("incorrectEventsProvider")
-    public void addEventTestException(Event eventToAdd, Class<?> expectedException) {
+    public void addEventTestException(Event eventToAdd, boolean inOpeningHours, Class<?> expectedException) {
+        lenient().when(clubsService.isEventInClubOpeningHours(Mockito.any())).thenReturn(inOpeningHours);
+
         EventsService serviceToTest = new EventsService(repository, clubsService, coachesService);
         Throwable thrown = catchThrowable(() -> serviceToTest.addEvent(eventToAdd));
 
@@ -86,17 +80,19 @@ public class EventsServiceTest {
 
     private static Stream<Arguments> incorrectEventsProvider() {
         return Stream.of(
-            Arguments.of(new Event("TEST", DayOfWeek.MONDAY, LocalTime.of(15, 30), Duration.ofMinutes(30), 1, 1), EventCoachOverlapException.class),
-            Arguments.of(new Event("TEST", DayOfWeek.MONDAY, LocalTime.of(0, 0), Duration.ofHours(1), 1, 2), EventNoSuchCoachException.class),
-            Arguments.of(new Event("TEST", DayOfWeek.MONDAY, LocalTime.of(0, 0), Duration.ofHours(1), 2, 1), EventNoSuchClubException.class),
-            Arguments.of(new Event("TEST", DayOfWeek.SUNDAY, LocalTime.of(23, 0), Duration.ofHours(2), 1, 1), EventNotInOpeningHoursException.class),
-            Arguments.of(new Event("TEST", DayOfWeek.FRIDAY, LocalTime.of(7, 0), Duration.ofHours(24).plus(Duration.ofSeconds(1)), 1, 1), EventTooLongException.class)
+            Arguments.of(new Event("TEST", DayOfWeek.MONDAY, LocalTime.of(15, 30), Duration.ofMinutes(30), 1, 1), true, EventCoachOverlapException.class),
+            Arguments.of(new Event("TEST", DayOfWeek.MONDAY, LocalTime.of(0, 0), Duration.ofHours(1), 1, 2), true, EventNoSuchCoachException.class),
+            Arguments.of(new Event("TEST", DayOfWeek.MONDAY, LocalTime.of(0, 0), Duration.ofHours(1), 2, 1), true, EventNoSuchClubException.class),
+            Arguments.of(new Event("TEST", DayOfWeek.SUNDAY, LocalTime.of(23, 0), Duration.ofHours(2), 1, 1), false, EventNotInOpeningHoursException.class),
+            Arguments.of(new Event("TEST", DayOfWeek.FRIDAY, LocalTime.of(7, 0), Duration.ofHours(24).plus(Duration.ofSeconds(1)), 1, 1), true, EventTooLongException.class)
         );
     }
 
     @ParameterizedTest(name="no exceptions POST {0}")
     @MethodSource("correctEventsProvider")
     public void addEventTestNoException(Event eventToAdd) {
+        when(clubsService.isEventInClubOpeningHours(Mockito.any())).thenReturn(true);
+
         EventsService serviceToTest = new EventsService(repository, clubsService, coachesService);
         
         assertDoesNotThrow(() -> serviceToTest.addEvent(eventToAdd));
