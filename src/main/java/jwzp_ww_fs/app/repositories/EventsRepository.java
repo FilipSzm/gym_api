@@ -40,7 +40,7 @@ public class EventsRepository {
         return allEvents.values().stream().toList();
     }
 
-    public Event getEvent(int id) {
-        return allEvents.get(id);
+    public Event getEvent(int i) {
+        return allEvents.get(i);
     }
 }

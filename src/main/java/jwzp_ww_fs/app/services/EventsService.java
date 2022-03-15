@@ -126,9 +126,9 @@ public class EventsService {
         } else {
             var fromPrev = eventsPrevDay.filter(e -> e.time().plus(e.duration()).isAfter(beg)).findAny().isPresent();
             var fromNext = eventsNextDay.filter(e -> e.time().isBefore(end)).findAny().isPresent();
-            var fromCurr = eventsSameDay.filter(e -> e.time().plus(e.duration()).isAfter(beg) || e.time().isAfter(beg))
-                    .findAny().isPresent();
-            return fromPrev || fromNext || fromCurr;
+            var fromCurr = eventsSameDay.filter(e -> e.time().plus(e.duration()).isAfter(beg) || e.time().isAfter(beg)).findAny().isPresent();
+            var fromCurr2 = eventsSameDayOvernight.toList().size() > 0;
+            return fromPrev || fromNext || fromCurr || fromCurr2;
         }
     }
 
