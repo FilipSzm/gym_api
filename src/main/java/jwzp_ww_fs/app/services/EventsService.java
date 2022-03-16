@@ -22,6 +22,7 @@ import jwzp_ww_fs.app.models.Event;
 import jwzp_ww_fs.app.models.OpeningHours;
 import jwzp_ww_fs.app.repositories.EventsRepository;
 
+// commnet
 @Service
 public class EventsService {
     EventsRepository repository;
