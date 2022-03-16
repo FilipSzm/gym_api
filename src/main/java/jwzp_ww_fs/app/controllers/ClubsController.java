@@ -1,10 +1,9 @@
 package jwzp_ww_fs.app.controllers;
 
-import jwzp_ww_fs.app.Exceptions.ClubHasEventsException;
-import jwzp_ww_fs.app.Exceptions.EventHoursInClubException;
+
 import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.Club;
-import jwzp_ww_fs.app.models.Event;
+
 import jwzp_ww_fs.app.services.ClubsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -13,11 +13,8 @@ public class CoachesRepository {
     private final AtomicInteger nextId = new AtomicInteger();
     private final Map<Integer, Coach> allCoaches = new HashMap<>();
 
-    public int getId(Coach coach) {
-        for (var key : allCoaches.keySet())
-            if (allCoaches.get(key).equals(coach)) return key;
-
-        return -1;
+    public int getNextId() {
+        return nextId.get() + 1;
     }
 
     public Coach addCoach(Coach coach) {
