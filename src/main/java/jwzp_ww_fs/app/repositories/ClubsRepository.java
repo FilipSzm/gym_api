@@ -13,11 +13,8 @@ public class ClubsRepository {
     private final AtomicInteger nextId = new AtomicInteger();
     private final Map<Integer, Club> allClubs = new HashMap<>();
 
-    public int getId(Club club) {
-        for (var key : allClubs.keySet())
-            if (allClubs.get(key).equals(club)) return key;
-
-        return -1;
+    public int getNextId() {
+        return nextId.get() + 1;
     }
 
     public Club addClub(Club club) {

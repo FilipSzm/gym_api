@@ -26,6 +26,7 @@ public class ClubsService {
     public ClubsService(ClubsRepository repository) {
         this.repository = repository;
         numberOfEventsInClubs = new HashMap<>();
+        clubsFillLevel = new HashMap<>();
     }
 
     Map<DayOfWeek, OpeningHours> getFillLevel(int clubId) {
@@ -75,9 +76,9 @@ public class ClubsService {
     }
 
     public Club addClub(Club club) {
+        var id = repository.getNextId();
         var out = repository.addClub(club);
 
-        var id = repository.getId(out);
         numberOfEventsInClubs.put(id, 0);
         clubsFillLevel.put(id, new HashMap<>());
 
@@ -94,8 +95,10 @@ public class ClubsService {
         var newHours = club.whenOpen();
         var oldHours = clubsFillLevel.get(clubId);
 
-        for (var key : newHours.keySet()) {
-            if (!oldHours.containsKey(key)) continue;
+        for (var key : oldHours.keySet()) {
+            if (!newHours.containsKey(key)) return true;
+            if (oldHours.get(key) == null) continue;
+            if (newHours.get(key) == null) return true;
             if (newHours.get(key).from().equals(newHours.get(key).to())) continue;
             if (oldHours.get(key).from().equals(oldHours.get(key).to()) && newHours.get(key).from().equals(newHours.get(key).to())) continue;
 

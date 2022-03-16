@@ -39,9 +39,9 @@ public class CoachesService {
     }
 
     public Coach addCoach(Coach coach) {
+        var id = repository.getNextId();
         var out = repository.addCoach(coach);
 
-        var id = repository.getId(out);
         numberOfEventsForCoaches.put(id, 0);
 
         return out;
