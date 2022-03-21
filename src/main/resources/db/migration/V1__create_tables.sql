@@ -1,14 +1,6 @@
-create table if not exists Person(
+CREATE TABLE IF NOT EXISTS Coaches(
     id SERIAL PRIMARY KEY,
-    name VARCHAR(127) NOT NULL,
-    surname VARCHAR(255) NOT NULL,
-    age int NOT NULL,
-    height int NOT NULL
+    fistName VARCHAR(127) NOT NULL,
+    lastName VARCHAR(255) NOT NULL,
+    yearOfBirth INT NOT NULL,
 );
-
-create table if not exists Pet(
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(127) NOT NULL,
-    species VARCHAR(64) NOT NULL,
-    owner_id INTEGER REFERENCES Person(id)
-)
