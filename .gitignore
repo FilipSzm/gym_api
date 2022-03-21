@@ -39,4 +39,4 @@ out/
 
 src/test/resources/manual
 
-database
+*.db
