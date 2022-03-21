@@ -1,6 +1,0 @@
-CREATE TABLE IF NOT EXISTS Coaches(
-    id SERIAL PRIMARY KEY,
-    fistName VARCHAR(127) NOT NULL,
-    lastName VARCHAR(255) NOT NULL,
-    yearOfBirth INT NOT NULL,
-);

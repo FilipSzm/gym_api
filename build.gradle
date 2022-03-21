@@ -34,7 +34,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.postgresql:postgresql:42.2.5'
 	runtimeOnly 'com.h2database:h2'
-	implementation 'org.flywaydb:flyway-core:8.5.2'
+	// implementation 'org.flywaydb:flyway-core:8.5.2'
 
 	testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.8.2'
 }
