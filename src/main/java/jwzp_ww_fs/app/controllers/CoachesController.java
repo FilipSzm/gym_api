@@ -39,11 +39,11 @@ public class CoachesController {
     @DeleteMapping("/{coachId}")
     public ResponseEntity<?> removeCoach(@PathVariable int coachId) {
         Coach deleted;
-        try {
+        // try {
             deleted = service.removeCoach(coachId);
-        } catch (GymException e) {
-            return ResponseEntity.badRequest().body(e.getErrorInfo());
-        }
+        // } catch (GymException e) {
+        //     return ResponseEntity.badRequest().body(e.getErrorInfo());
+        // }
 
         if (deleted == null) return ResponseEntity.badRequest().body("Could not remove coach with that ID");
         return ResponseEntity.ok().body(deleted);
