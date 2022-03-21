@@ -38,3 +38,5 @@ out/
 .vscode/
 
 src/test/resources/manual
+
+*.db
