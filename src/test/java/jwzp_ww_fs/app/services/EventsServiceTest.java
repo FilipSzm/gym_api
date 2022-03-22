@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.time.Year;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -59,15 +60,16 @@ public class EventsServiceTest {
             new Event("E9", DayOfWeek.TUESDAY, LocalTime.of(1, 0), Duration.ofHours(22), 1, 2)
         );
 
-        lenient().when(repository.getAllEvents()).thenReturn(exampleEvents);
-        lenient().when(repository.getEvent(1)).thenReturn(exampleEvents.get(0));
-        lenient().when(repository.getEvent(not(eq(1)))).thenReturn(null);
+        lenient().when(repository.findAll()).thenReturn(exampleEvents);
+        lenient().when(repository.getById(1)).thenReturn(exampleEvents.get(0));
+        lenient().when(repository.findById(1)).thenReturn(Optional.of(exampleEvents.get(0)));
+        lenient().when(repository.findById(not(eq(1)))).thenReturn(Optional.empty());
         
-        lenient().when(repository.updateEvent(eq(1), Mockito.any())).thenReturn(exampleEvents.get(0));
+        // lenient().when(repository.updateEvent(eq(1), Mockito.any())).thenReturn(exampleEvents.get(0));
         
-        lenient().when(repository.removeEventWithId(1)).thenReturn(exampleEvents.get(0));
+        // lenient().when(repository.removeEventWithId(1)).thenReturn(exampleEvents.get(0));
 
-        lenient().when(repository.removeAllEvents()).thenReturn(exampleEvents);
+        // lenient().when(repository.removeAllEvents()).thenReturn(exampleEvents);
         
         Club exampleClub = new Club("name", "address", null);
         lenient().when(clubsService.getClub(1)).thenReturn(exampleClub);
@@ -152,7 +154,7 @@ public class EventsServiceTest {
         EventsService serviceToTest = new EventsService(repository, clubsService, coachesService);
         
         Event oldEvent = assertDoesNotThrow(() -> serviceToTest.updateEvent(eventId, eventToAdd));
-        assertThat(oldEvent).isEqualTo(repository.getEvent(eventId));
+        assertThat(oldEvent).isEqualTo(repository.getById(eventId));
     }
 
     private static Stream<Arguments> correctUpdateEventsProvider() {
@@ -170,7 +172,7 @@ public class EventsServiceTest {
         EventsService serviceToTest = new EventsService(repository, clubsService, coachesService);
         
         Event deletedEvent = assertDoesNotThrow(() -> serviceToTest.removeEvent(1));
-        assertThat(deletedEvent).isEqualTo(repository.getEvent(1));
+        assertThat(deletedEvent).isEqualTo(repository.getById(1));
     }
 
     @Test
@@ -186,7 +188,7 @@ public class EventsServiceTest {
         EventsService serviceToTest = new EventsService(repository, clubsService, coachesService);
      
         List<Event> oldEvent = assertDoesNotThrow(serviceToTest::removeAllEvents);
-        assertThat(oldEvent).containsExactlyInAnyOrderElementsOf(repository.getAllEvents());
+        assertThat(oldEvent).containsExactlyInAnyOrderElementsOf(repository.findAll());
     }
 
     //GET
@@ -196,13 +198,13 @@ public class EventsServiceTest {
         EventsService serviceToTest = new EventsService(repository, clubsService, coachesService);
 
         List<Event> events = assertDoesNotThrow(serviceToTest::getAllEvents);
-        assertThat(events).containsExactlyInAnyOrderElementsOf(repository.getAllEvents());
+        assertThat(events).containsExactlyInAnyOrderElementsOf(repository.findAll());
     }
 
     @ParameterizedTest(name="GET coach {0}")
     @MethodSource("getEventByCoachProvider")
     public void getEventByCoachTest(int coachId) {
-        List<Event> expectedEvents = repository.getAllEvents().stream().filter(e -> e.coachId() == coachId).toList();
+        List<Event> expectedEvents = repository.findAll().stream().filter(e -> e.coachId() == coachId).toList();
 
         EventsService serviceToTest = new EventsService(repository, clubsService, coachesService);
         
@@ -219,7 +221,7 @@ public class EventsServiceTest {
     @ParameterizedTest(name="GET club {0}")
     @MethodSource("getEventByClubProvider")
     public void getEventByClubTest(int clubId) {
-        List<Event> expectedEvents = repository.getAllEvents().stream().filter(e -> e.clubId() == clubId).toList();
+        List<Event> expectedEvents = repository.findAll().stream().filter(e -> e.clubId() == clubId).toList();
 
         EventsService serviceToTest = new EventsService(repository, clubsService, coachesService);
         
@@ -236,7 +238,7 @@ public class EventsServiceTest {
     @ParameterizedTest(name="GET club {0} coach {1}")
     @MethodSource("getEventByClubAndCoachProvider")
     public void getEventByClubAndCoachTest(int clubId, int coachId) {
-        List<Event> expectedEvents = repository.getAllEvents().stream().filter(e -> e.clubId() == clubId && e.coachId() == coachId).toList();
+        List<Event> expectedEvents = repository.findAll().stream().filter(e -> e.clubId() == clubId && e.coachId() == coachId).toList();
 
         EventsService serviceToTest = new EventsService(repository, clubsService, coachesService);
         
