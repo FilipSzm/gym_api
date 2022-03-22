@@ -10,8 +10,8 @@ import java.time.LocalTime;
 import static javax.persistence.GenerationType.AUTO;
 
 @Entity
-@Table(name = "opening_hours")
-public class OpeningHours {
+@Table(name = "event_hours")
+public class EventHours {
     @JsonIgnore
     @Id
     @GeneratedValue(strategy = AUTO)
@@ -26,20 +26,20 @@ public class OpeningHours {
     @Column(name = "_to")
     private LocalTime to;
 
-    public OpeningHours() {
+    public EventHours() {
         from = null;
         to = null;
     }
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public OpeningHours(LocalTime from, LocalTime to) {
+    public EventHours(LocalTime from, LocalTime to) {
         this.from = from;
         this.to = to;
     }
 
-    public void updateData(OpeningHours openingHours) {
-        this.from = openingHours.from;
-        this.to = openingHours.to;
+    public void updateData(EventHours eventHours) {
+        this.from = eventHours.from;
+        this.to = eventHours.to;
     }
 
     public void from(LocalTime from) {

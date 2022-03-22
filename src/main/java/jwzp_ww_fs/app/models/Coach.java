@@ -16,18 +16,23 @@ public class Coach {
     @JsonIgnore
     @Id
     @GeneratedValue(strategy = AUTO)
+    @Column(name = "id")
     private int id;
 
     @JsonProperty("firstName")
-    private /*final*/ String firstName;
+    @Column(name = "first_name")
+    private String firstName;
 
     @JsonProperty("lastName")
-    private /*final*/ String lastName;
+    @Column(name = "last_name")
+    private String lastName;
 
     @JsonProperty("yearOfBirth")
-    private /*final*/ Year yearOfBirth;
+    @Column(name = "year_of_birth")
+    private Year yearOfBirth;
 
     @JsonIgnore
+    @Column(name = "number_of_events")
     private int numberOfEvents;
 
 

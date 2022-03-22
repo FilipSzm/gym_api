@@ -19,37 +19,98 @@ import java.util.Map;
 public class ClubsService {
     ClubsRepository repository;
 
-    Map<Integer, Integer> numberOfEventsInClubs;
-    Map<Integer, Map<DayOfWeek, OpeningHours>> clubsFillLevel;
-
     @Autowired
     public ClubsService(ClubsRepository repository) {
         this.repository = repository;
-        numberOfEventsInClubs = new HashMap<>();
-        clubsFillLevel = new HashMap<>();
     }
 
     Map<DayOfWeek, OpeningHours> getFillLevel(int clubId) {
-        return clubsFillLevel.get(clubId);
+//        return clubsFillLevel.get(clubId);
+        return null;
     }
 
     void setFillLevel(int clubId, Map<DayOfWeek, OpeningHours> fillLevel) {
-        clubsFillLevel.put(clubId, fillLevel);
+//        clubsFillLevel.put(clubId, fillLevel); hmmm
     }
 
     synchronized boolean addEventToClub(int clubId) {
-        if (!numberOfEventsInClubs.containsKey(clubId)) return false;
-
-        numberOfEventsInClubs.replace(clubId, numberOfEventsInClubs.get(clubId) + 1);
+//        if (!numberOfEventsInClubs.containsKey(clubId)) return false;
+//
+//        numberOfEventsInClubs.replace(clubId, numberOfEventsInClubs.get(clubId) + 1);
         return true;
     }
 
     synchronized boolean subtractEventFromClub(int clubId) {
-        if (!numberOfEventsInClubs.containsKey(clubId)) return false;
-        if (numberOfEventsInClubs.get(clubId) <= 0) return false;
-
-        numberOfEventsInClubs.replace(clubId, numberOfEventsInClubs.get(clubId) - 1);
+//        if (!numberOfEventsInClubs.containsKey(clubId)) return false;
+//        if (numberOfEventsInClubs.get(clubId) <= 0) return false;
+//
+//        numberOfEventsInClubs.replace(clubId, numberOfEventsInClubs.get(clubId) - 1);
         return true;
+    }
+
+
+
+    public Club addClub(Club club) {
+        var out = repository.save(club);
+        out.numberOfEvents(0);
+        out.fillLevel(new HashMap<>());
+        return repository.save(club);
+    }
+
+    public Club patchClub(int clubId, Club club) throws EventHoursInClubException {
+        var clubToUpdate = repository.findById(clubId).orElse(null);
+        if (clubToUpdate == null) throw  new EventHoursInClubException();  //// chyba nie dziala
+
+        clubToUpdate.updateData(club);
+        return repository.save(clubToUpdate);
+    }
+
+    private boolean hoursCollision(int clubId, Club club) {
+        var newHours = club.whenOpen();
+        var oldHours = repository.getById(clubId).fillLevel();
+
+        for (var key : oldHours.keySet()) {
+            if (!newHours.containsKey(key)) return true;
+            if (oldHours.get(key) == null) continue;
+            if (newHours.get(key) == null) return true;
+            if (newHours.get(key).from().equals(newHours.get(key).to())) continue;
+            if (oldHours.get(key).from().equals(oldHours.get(key).to()) && newHours.get(key).from().equals(newHours.get(key).to())) continue;
+
+            if (!(newHours.get(key).from().compareTo(oldHours.get(key).from()) <= 0 && newHours.get(key).to().compareTo(oldHours.get(key).to()) >= 0)) return true;
+        }
+
+        return false;
+    }
+
+    public Club removeClub(int clubId) throws ClubHasEventsException {
+//        if (numberOfEventsInClubs.get(clubId) > 0) throw new ClubHasEventsException();
+//
+//        numberOfEventsInClubs.remove(clubId);
+//        clubsFillLevel.remove(clubId);
+//        return repository.removeClubWithId(clubId);
+
+
+        return null;
+    }
+
+    public List<Club> removeAllClubs() throws ClubHasEventsException {
+//        for (var key : numberOfEventsInClubs.keySet())
+//            if (numberOfEventsInClubs.get(key) > 0) throw new ClubHasEventsException();
+//
+//        numberOfEventsInClubs = new HashMap<>();
+//        clubsFillLevel = new HashMap<>();
+//        return repository.removeAllClubs();
+
+        return null;
+
+    }
+
+    public List<Club> getAllClubs() {
+        return repository.findAll();
+    }
+
+    public Club getClub(int clubId) {
+        return repository.findById(clubId).orElse(null);
     }
 
     boolean isEventInClubOpeningHours(Event eventToAdd) {
@@ -73,63 +134,5 @@ public class ClubsService {
 
             return firstDayOk && secondDayOk;
         }
-    }
-
-    public Club addClub(Club club) {
-        var id = repository.getNextId();
-        var out = repository.addClub(club);
-
-        numberOfEventsInClubs.put(id, 0);
-        clubsFillLevel.put(id, new HashMap<>());
-
-        return out;
-    }
-
-    public Club patchClub(int clubId, Club club) throws EventHoursInClubException {
-        if (hoursCollision(clubId, club)) throw new EventHoursInClubException();
-
-        return repository.patchClubWithId(clubId, club);
-    }
-
-    private boolean hoursCollision(int clubId, Club club) {
-        var newHours = club.whenOpen();
-        var oldHours = clubsFillLevel.get(clubId);
-
-        for (var key : oldHours.keySet()) {
-            if (!newHours.containsKey(key)) return true;
-            if (oldHours.get(key) == null) continue;
-            if (newHours.get(key) == null) return true;
-            if (newHours.get(key).from().equals(newHours.get(key).to())) continue;
-            if (oldHours.get(key).from().equals(oldHours.get(key).to()) && newHours.get(key).from().equals(newHours.get(key).to())) continue;
-
-            if (!(newHours.get(key).from().compareTo(oldHours.get(key).from()) <= 0 && newHours.get(key).to().compareTo(oldHours.get(key).to()) >= 0)) return true;
-        }
-
-        return false;
-    }
-
-    public Club removeClub(int clubId) throws ClubHasEventsException {
-        if (numberOfEventsInClubs.get(clubId) > 0) throw new ClubHasEventsException();
-
-        numberOfEventsInClubs.remove(clubId);
-        clubsFillLevel.remove(clubId);
-        return repository.removeClubWithId(clubId);
-    }
-
-    public List<Club> removeAllClubs() throws ClubHasEventsException {
-        for (var key : numberOfEventsInClubs.keySet())
-            if (numberOfEventsInClubs.get(key) > 0) throw new ClubHasEventsException();
-
-        numberOfEventsInClubs = new HashMap<>();
-        clubsFillLevel = new HashMap<>();
-        return repository.removeAllClubs();
-    }
-
-    public List<Club> getAllClubs() {
-        return repository.getAllClubs();
-    }
-
-    public Club getClub(int clubId) {
-        return repository.getClub(clubId);
     }
 }
