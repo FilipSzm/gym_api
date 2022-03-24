@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ public class EventsService {
         clubsService.setFillLevel(event.clubId(), getMinimalOpeningHoursForClub(event));
         coachesService.addEventForCoach(event.coachId());
 
-        return repository.addEvent(event);
+        return repository.save(event);
     }
 
     private Map<DayOfWeek, OpeningHours> getMinimalOpeningHoursForClub(Event eventToAdd) {
@@ -145,10 +146,18 @@ public class EventsService {
     }
 
     public Event removeEvent(int eventId) throws EventDoesNotExistException {
-        Event removedEvent = repository.removeEventWithId(eventId);
+        // Event removedEvent = repository.removeEventWithId(eventId);
 
-        if (removedEvent == null)
-            throw new EventDoesNotExistException();
+        // if (removedEvent == null)
+        //     throw new EventDoesNotExistException();
+        // return removedEvent;
+        Optional<Event> eventToRemove = repository.findById(eventId);
+
+        if (eventToRemove.isEmpty()) throw new EventDoesNotExistException();
+
+        Event removedEvent = eventToRemove.get();
+
+        repository.deleteById(eventId);
         return removedEvent;
     }
 
@@ -161,7 +170,11 @@ public class EventsService {
             coachesService.subtractEventFromCoach(e.coachId());
         }
 
-        return repository.removeAllEvents();
+        var removedEvents = repository.findAll();
+
+        repository.deleteAll();
+
+        return removedEvents;
     }
 
     public Event updateEvent(int eventId, Event event) throws GymException {
@@ -180,26 +193,31 @@ public class EventsService {
         if (!isEventCorrectLength(event))
             throw new EventTooLongException();
 
-        return repository.updateEvent(eventId, event);
+        Event eventToUpdate = repository.getById(eventId);
+        eventToUpdate.updateData(event);
+        repository.save(eventToUpdate);
+
+        return currentEventWithId;
     }
 
     public List<Event> getAllEvents() {
-        return repository.getAllEvents();
+        return repository.findAll();
     }
 
     public List<Event> getEventsByCoach(int coachId) {
-        return repository.getAllEvents().stream().filter(c -> c.coachId() == coachId).toList();
+        return repository.findAll().stream().filter(c -> c.coachId() == coachId).toList();
     }
 
     public List<Event> getEventsByClub(int clubId) {
-        return repository.getAllEvents().stream().filter(c -> c.clubId() == clubId).toList();
+        return repository.findAll().stream().filter(c -> c.clubId() == clubId).toList();
     }
 
     public List<Event> getEventsByCoachAndClub(int coachId, int clubId) {
-        return repository.getAllEvents().stream().filter(c -> c.coachId() == coachId && c.clubId() == clubId).toList();
+        return repository.findAll().stream().filter(c -> c.coachId() == coachId && c.clubId() == clubId).toList();
     }
 
     public Event getEvent(int id) {
-        return repository.getEvent(id);
+        Optional<Event> event = repository.findById(id);
+        return event.isPresent() ? event.get() : null;
     }
 }
