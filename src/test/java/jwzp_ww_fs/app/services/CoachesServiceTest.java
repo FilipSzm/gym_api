@@ -1,7 +1,7 @@
 package jwzp_ww_fs.app.services;
 
 import jwzp_ww_fs.app.models.Coach;
-import jwzp_ww_fs.app.repositories.CoachesRepository;
+import jwzp_ww_fs.app.repositories.CoachRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class CoachesServiceTest {
     @Mock
-    private CoachesRepository repository;
+    private CoachRepository repository;
 
     @BeforeEach
     public void initializeMocks() {
