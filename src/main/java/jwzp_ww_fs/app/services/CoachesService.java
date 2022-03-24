@@ -50,7 +50,8 @@ public class CoachesService {
     }
 
     synchronized public Coach removeCoach(int coachId) throws CoachHasEventsException {
-        Coach coach = repository.getById(coachId);
+        Coach coach = repository.findById(coachId).orElse(null);
+        if (coach == null) return null;
         if (!coach.isEmpty()) throw new CoachHasEventsException();
 
         repository.deleteById(coachId);
@@ -58,12 +59,12 @@ public class CoachesService {
     }
 
     public List<Coach> removeAllCoaches() throws ClubHasEventsException {
-        List<Coach> coaches = repository.findAll();
+        var coaches = repository.findAll();
         for (var coach : coaches)
             if (!coach.isEmpty()) throw new ClubHasEventsException();
 
         repository.deleteAll();
-        return null;
+        return coaches;
     }
 
     public List<Coach> getAllCoaches() {

@@ -1,8 +1,15 @@
 package jwzp_ww_fs.app.repositories;
 
 import jwzp_ww_fs.app.models.Club;
+import jwzp_ww_fs.app.models.OpeningHours;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.DayOfWeek;
+import java.util.Map;
 
 
 @Repository

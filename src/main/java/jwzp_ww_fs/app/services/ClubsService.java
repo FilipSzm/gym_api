@@ -2,9 +2,7 @@ package jwzp_ww_fs.app.services;
 
 import jwzp_ww_fs.app.Exceptions.ClubHasEventsException;
 import jwzp_ww_fs.app.Exceptions.EventHoursInClubException;
-import jwzp_ww_fs.app.models.Club;
-import jwzp_ww_fs.app.models.Event;
-import jwzp_ww_fs.app.models.OpeningHours;
+import jwzp_ww_fs.app.models.*;
 import jwzp_ww_fs.app.repositories.ClubsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,31 +22,29 @@ public class ClubsService {
         this.repository = repository;
     }
 
-    Map<DayOfWeek, OpeningHours> getFillLevel(int clubId) {
-//        return clubsFillLevel.get(clubId);
-        return null;
-    }
-
     void setFillLevel(int clubId, Map<DayOfWeek, OpeningHours> fillLevel) {
-//        clubsFillLevel.put(clubId, fillLevel); hmmm
+        var converted = new HashMap<DayOfWeek, EventHours>();
+        for (var entry : fillLevel.entrySet())
+            converted.put(entry.getKey(), new EventHours(entry.getValue().from(), entry.getValue().to()));
+
+        var club = repository.findById(clubId).orElse(null);
+        if (club == null) return;
+
+        club.fillLevel(converted);
+        repository.save(club);
     }
 
-    synchronized boolean addEventToClub(int clubId) {
-//        if (!numberOfEventsInClubs.containsKey(clubId)) return false;
-//
-//        numberOfEventsInClubs.replace(clubId, numberOfEventsInClubs.get(clubId) + 1);
-        return true;
+    synchronized void addEventToClub(int clubId) {
+        var club = repository.getById(clubId);
+        club.addEvent();
+        repository.save(club);
     }
 
-    synchronized boolean subtractEventFromClub(int clubId) {
-//        if (!numberOfEventsInClubs.containsKey(clubId)) return false;
-//        if (numberOfEventsInClubs.get(clubId) <= 0) return false;
-//
-//        numberOfEventsInClubs.replace(clubId, numberOfEventsInClubs.get(clubId) - 1);
-        return true;
+    synchronized void subtractEventFromClub(int clubId) {
+        var club = repository.getById(clubId);
+        club.subEvent();
+        repository.save(club);
     }
-
-
 
     public Club addClub(Club club) {
         var out = repository.save(club);
@@ -59,15 +55,16 @@ public class ClubsService {
 
     public Club patchClub(int clubId, Club club) throws EventHoursInClubException {
         var clubToUpdate = repository.findById(clubId).orElse(null);
-        if (clubToUpdate == null) throw  new EventHoursInClubException();  //// chyba nie dziala
+        if (clubToUpdate == null) return null;
+        if (hoursCollision(clubToUpdate, club)) throw  new EventHoursInClubException();
 
         clubToUpdate.updateData(club);
         return repository.save(clubToUpdate);
     }
 
-    private boolean hoursCollision(int clubId, Club club) {
-        var newHours = club.whenOpen();
-        var oldHours = repository.getById(clubId).fillLevel();
+    private boolean hoursCollision(Club oldClub, Club newClub) {
+        var newHours = newClub.whenOpen();
+        var oldHours = oldClub.fillLevel();
 
         for (var key : oldHours.keySet()) {
             if (!newHours.containsKey(key)) return true;
@@ -83,26 +80,21 @@ public class ClubsService {
     }
 
     public Club removeClub(int clubId) throws ClubHasEventsException {
-//        if (numberOfEventsInClubs.get(clubId) > 0) throw new ClubHasEventsException();
-//
-//        numberOfEventsInClubs.remove(clubId);
-//        clubsFillLevel.remove(clubId);
-//        return repository.removeClubWithId(clubId);
+        Club club = repository.findById(clubId).orElse(null);
+        if (club == null) return null;
+        if (!club.isEmpty()) throw new ClubHasEventsException();
 
-
-        return null;
+        repository.deleteById(clubId);
+        return club;
     }
 
     public List<Club> removeAllClubs() throws ClubHasEventsException {
-//        for (var key : numberOfEventsInClubs.keySet())
-//            if (numberOfEventsInClubs.get(key) > 0) throw new ClubHasEventsException();
-//
-//        numberOfEventsInClubs = new HashMap<>();
-//        clubsFillLevel = new HashMap<>();
-//        return repository.removeAllClubs();
+        var clubs = repository.findAll();
+        for (var club : clubs)
+            if (!club.isEmpty()) throw new ClubHasEventsException();
 
-        return null;
-
+        repository.deleteAll();
+        return clubs;
     }
 
     public List<Club> getAllClubs() {

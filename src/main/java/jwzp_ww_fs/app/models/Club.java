@@ -27,7 +27,7 @@ public class Club {
     private String address;
 
     @JsonProperty("whenOpen")
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(name = "when_open",
             joinColumns = {@JoinColumn(name = "club_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "opening_hours_id", referencedColumnName = "id")})
@@ -39,12 +39,26 @@ public class Club {
     private int numberOfEvents;
 
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(name = "fill_level",
             joinColumns = {@JoinColumn(name = "club_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "fill_level_id", referencedColumnName = "id")})
     @MapKeyEnumerated
     private Map<DayOfWeek, EventHours> fillLevel;
+
+    public Club(String name, String address, Map<DayOfWeek, OpeningHours> whenOpen) {
+        this.name = name;
+        this.address = address;
+        this.whenOpen = whenOpen;
+    }
+
+    public Club(String name, String address, Map<DayOfWeek, OpeningHours> whenOpen, int numberOfEvents, Map<DayOfWeek, EventHours> fillLevel) {
+        this.name = name;
+        this.address = address;
+        this.whenOpen = whenOpen;
+        this.numberOfEvents = numberOfEvents;
+        this.fillLevel = fillLevel;
+    }
 
     public void whenOpen(Map<DayOfWeek, OpeningHours> whenOpen) {
         this.whenOpen = whenOpen;
@@ -55,7 +69,8 @@ public class Club {
     }
 
     public void fillLevel(Map<DayOfWeek, EventHours> fillLevel) {
-        this.fillLevel = fillLevel;
+        this.fillLevel.clear();
+        this.fillLevel.putAll(fillLevel);
     }
 
     public Map<DayOfWeek, EventHours> fillLevel() {
@@ -73,7 +88,8 @@ public class Club {
     public void updateData(Club club) {
         this.name = club.name;
         this.address = club.address;
-        this.whenOpen = club.whenOpen;  //TODO
+        this.whenOpen.clear();
+        this.whenOpen.putAll(club.whenOpen);
     }
 
     public void addEvent() {
