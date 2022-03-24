@@ -56,7 +56,8 @@ public class EventsService {
 
         var result = new HashMap<DayOfWeek, OpeningHours>();
         for (DayOfWeek day : DayOfWeek.values()) {
-            result.put(day, getDayMinOpeningHours(day, clubEvents));
+            OpeningHours openingHoursForDay = getDayMinOpeningHours(day, clubEvents);
+            if (openingHoursForDay != null) result.put(day, openingHoursForDay);
         }
         return result;
     }
