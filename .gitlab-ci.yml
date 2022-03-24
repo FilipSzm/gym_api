@@ -28,6 +28,8 @@ gradle-build:
 heroku-deploy:
   image: docker:stable
   stage: deploy
+  only:
+    - main
   variables:
     CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH
     DOCKER_HOST: tcp://docker:2375

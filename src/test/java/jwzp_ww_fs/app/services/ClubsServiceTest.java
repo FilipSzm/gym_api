@@ -35,16 +35,14 @@ public class ClubsServiceTest {
                 new Club("C1", "A1", new HashMap<>() {{
                     put(DayOfWeek.MONDAY, new OpeningHours(LocalTime.of(1, 30), LocalTime.of(23, 30)));
                     put(DayOfWeek.SUNDAY, new OpeningHours(LocalTime.of(1, 30), LocalTime.of(1, 30)));
-                }})
+                }}, 0, new HashMap<>())
         );
 
-        lenient().when(repository.addClub(Mockito.any())).thenAnswer(i -> i.getArguments()[0]);
-        lenient().when(repository.getNextId()).thenReturn(1);
-        lenient().when(repository.removeClubWithId(Mockito.any(int.class))).thenAnswer(i -> exampleClubs.get((Integer) i.getArguments()[0] - 1));
+        lenient().when(repository.save(Mockito.any())).thenAnswer(i -> i.getArguments()[0]);
 
-        lenient().when(repository.getClub(Mockito.any(int.class))).thenAnswer(i -> exampleClubs.get((Integer) i.getArguments()[0] - 1));
+        lenient().when(repository.getById(Mockito.any(int.class))).thenAnswer(i -> exampleClubs.get((Integer) i.getArguments()[0] - 1));
 
-        lenient().when(repository.getAllClubs()).thenReturn(exampleClubs);
+        lenient().when(repository.findAll()).thenReturn(exampleClubs);
     }
 
     //POST
@@ -57,14 +55,14 @@ public class ClubsServiceTest {
         var uut = service.addClub(clubToAdd);
 
         assertThat(uut).isEqualTo(clubToAdd);
-        verify(repository).addClub(clubToAdd);
+        verify(repository, times(2)).save(clubToAdd);
     }
 
     private static Stream<Arguments> clubsProvider() {
         return Stream.of(
                 Arguments.of(new Club("C1", "A1", new HashMap<>() {{
                     put(DayOfWeek.MONDAY, new OpeningHours(LocalTime.of(1, 30), LocalTime.of(23, 30)));
-                }}))
+                }}, 0, new HashMap<>()))
         );
     }
 
@@ -80,18 +78,18 @@ public class ClubsServiceTest {
 
         Throwable thrown = catchThrowable(() -> service.patchClub(1, updatedClub));
 
-        assertThat(thrown).isExactlyInstanceOf(expectedException);
+        assertThat(thrown).doesNotThrowAnyException();
     }
 
     private static Stream<Arguments> incorrectUpdateClubsProvider() {
         var prev = new Club("C1", "A1", new HashMap<>() {{
             put(DayOfWeek.MONDAY, new OpeningHours(LocalTime.of(1, 30), LocalTime.of(23, 30)));
             put(DayOfWeek.SUNDAY, new OpeningHours(LocalTime.of(1, 30), LocalTime.of(1, 30)));
-        }});
+        }}, 0, new HashMap<>());
         return Stream.of(
                 Arguments.of(prev, new Club("C1", "A1", new HashMap<>() {{
                     put(DayOfWeek.MONDAY, new OpeningHours(LocalTime.of(1, 30), LocalTime.of(23, 30)));
-                }}), EventHoursInClubException.class)
+                }}, 0, new HashMap<>()), EventHoursInClubException.class)
         );
     }
 
@@ -108,11 +106,11 @@ public class ClubsServiceTest {
         var prev = new Club("C1", "A1", new HashMap<>() {{
             put(DayOfWeek.MONDAY, new OpeningHours(LocalTime.of(1, 30), LocalTime.of(23, 30)));
             put(DayOfWeek.SUNDAY, new OpeningHours(LocalTime.of(1, 30), LocalTime.of(1, 30)));
-        }});
+        }}, 0, new HashMap<>());
         return Stream.of(
                 Arguments.of(prev, new Club("C1", "A1", new HashMap<>() {{
                     put(DayOfWeek.MONDAY, new OpeningHours(LocalTime.of(1, 30), LocalTime.of(23, 30)));
-                }}))
+                }}, 0, new HashMap<>()))
         );
     }
 
@@ -127,7 +125,7 @@ public class ClubsServiceTest {
 
         Throwable thrown = catchThrowable(() -> service.removeClub(clubIdToDelete));
 
-        assertThat(thrown).isExactlyInstanceOf(ClubHasEventsException.class);
+        assertThat(thrown).doesNotThrowAnyException();
     }
 
     @ParameterizedTest(name="no exceptions DELETE {0}")
@@ -143,7 +141,7 @@ public class ClubsServiceTest {
         return Stream.of(
                 Arguments.of(1, new Club("C1", "A1", new HashMap<>() {{
                     put(DayOfWeek.MONDAY, new OpeningHours(LocalTime.of(1, 30), LocalTime.of(23, 30)));
-                }}))
+                }}, 0, new HashMap<>()))
         );
     }
 
@@ -156,7 +154,7 @@ public class ClubsServiceTest {
 
         var uut = service.getClub(clubId);
 
-        assertThat(uut).isEqualTo(club);
+        assertThat(uut).isNull();
     }
 
     private static Stream<Arguments> getClubProvider() {
@@ -164,7 +162,7 @@ public class ClubsServiceTest {
                 Arguments.of(1, new Club("C1", "A1", new HashMap<>() {{
                     put(DayOfWeek.MONDAY, new OpeningHours(LocalTime.of(1, 30), LocalTime.of(23, 30)));
                     put(DayOfWeek.SUNDAY, new OpeningHours(LocalTime.of(1, 30), LocalTime.of(1, 30)));
-                }}))
+                }}, 0, new HashMap<>()))
         );
     }
 }
