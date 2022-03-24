@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 import java.time.DayOfWeek;
+import java.util.HashMap;
 import java.util.Map;
 
 import static javax.persistence.GenerationType.AUTO;
@@ -49,15 +50,16 @@ public class Club {
     public Club() {
         this.name = null;
         this.address = null;
-        this.whenOpen = null;
+        this.whenOpen = new HashMap<>();
         this.numberOfEvents = -1;
-        this.fillLevel = null;
+        this.fillLevel = new HashMap<>();
     }
 
     public Club(String name, String address, Map<DayOfWeek, OpeningHours> whenOpen) {
         this.name = name;
         this.address = address;
         this.whenOpen = whenOpen;
+        this.fillLevel = new HashMap<>();
     }
 
     public Club(String name, String address, Map<DayOfWeek, OpeningHours> whenOpen, int numberOfEvents, Map<DayOfWeek, EventHours> fillLevel) {
