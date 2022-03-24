@@ -8,13 +8,14 @@ import javax.persistence.*;
 import java.time.LocalTime;
 
 import static javax.persistence.GenerationType.AUTO;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "event_hours")
 public class EventHours {
     @JsonIgnore
     @Id
-    @GeneratedValue(strategy = AUTO)
+    @GeneratedValue(strategy = IDENTITY)
     @Column(name = "id")
     private int id;
 

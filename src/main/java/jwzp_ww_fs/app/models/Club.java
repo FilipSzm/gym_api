@@ -8,14 +8,14 @@ import java.time.DayOfWeek;
 import java.util.HashMap;
 import java.util.Map;
 
-import static javax.persistence.GenerationType.AUTO;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "clubs")
 public class Club {
     @JsonIgnore
     @Id
-    @GeneratedValue(strategy = AUTO)
+    @GeneratedValue(strategy = IDENTITY)
     @Column(name = "id")
     private int id;
 

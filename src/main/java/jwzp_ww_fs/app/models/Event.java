@@ -14,6 +14,8 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 // public record Event(String title, DayOfWeek day, LocalTime time, Duration duration, int clubId, int coachId) {
 // }
 
@@ -21,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Table(name="events")
 public class Event {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = IDENTITY)
     private int id;
 
     @JsonProperty("title")
