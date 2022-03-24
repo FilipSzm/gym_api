@@ -46,6 +46,14 @@ public class Club {
     @MapKeyEnumerated
     private Map<DayOfWeek, EventHours> fillLevel;
 
+    public Club() {
+        this.name = null;
+        this.address = null;
+        this.whenOpen = null;
+        this.numberOfEvents = -1;
+        this.fillLevel = null;
+    }
+
     public Club(String name, String address, Map<DayOfWeek, OpeningHours> whenOpen) {
         this.name = name;
         this.address = address;
