@@ -34,9 +34,7 @@ public class CoachesController {
 
     @ApiResponses(value = {
             @ApiResponse(content = {
-                    @Content(mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = Coach.class))
-                    )
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Coach.class)))
             }, responseCode = "200", description = "Correctly returned all coaches")
     })
     @GetMapping("")
@@ -45,47 +43,38 @@ public class CoachesController {
     }
 
     @ApiResponses(value = {
-        @ApiResponse(content = {
-                @Content(mediaType = "application/json",
-                array = @ArraySchema(schema = @Schema(implementation = Coach.class))
-                )
-        }, responseCode = "200", description = "Returned coach with specified ID or nothing if there is no coach with such ID"),
+            @ApiResponse(content = {
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Coach.class)))
+            }, responseCode = "200", description = "Returned coach with specified ID or nothing if there is no coach with such ID"),
     })
     @GetMapping("/{coachId}")
-    public Coach getCoach(@Parameter(required = true, description = "ID of coach to get", in = ParameterIn.PATH) @PathVariable int coachId) {
+    public Coach getCoach(
+            @Parameter(required = true, description = "ID of coach to get", in = ParameterIn.PATH) @PathVariable int coachId) {
         return service.getCoach(coachId);
     }
 
     @ApiResponses(value = {
-        @ApiResponse(content = {
-                @Content(mediaType = "application/json",
-                array = @ArraySchema(schema = @Schema(implementation = Coach.class))
-                )
-        }, responseCode = "200", description = "Succesfully added coach to database and returned it"),
+            @ApiResponse(content = {
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Coach.class)))
+            }, responseCode = "200", description = "Succesfully added coach to database and returned it"),
     })
     @PostMapping("")
-    public Coach addCoach(@io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Information about coach to add", 
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = Coach.class)
-            )) @org.springframework.web.bind.annotation.RequestBody Coach coach) {
+    public Coach addCoach(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Information about coach to add", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Coach.class))) @org.springframework.web.bind.annotation.RequestBody Coach coach) {
         return service.addCoach(coach);
     }
 
     @ApiResponses(value = {
-        @ApiResponse(content = {
-                @Content(mediaType = "application/json",
-                array = @ArraySchema(schema = @Schema(implementation = Coach.class))
-                )
-        }, responseCode = "200", description = "Correctly returned all coaches"),
-        @ApiResponse(content = {
-            @Content(mediaType = "application/json",
-            array = @ArraySchema(schema = @Schema(implementation = ExceptionInfo.class))
-            )
-    }, responseCode = "400", description = "Error occured while trying to remove coach (eg. no coach with such ID)")
+            @ApiResponse(content = {
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Coach.class)))
+            }, responseCode = "200", description = "Correctly returned deleted coach"),
+            @ApiResponse(content = {
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ExceptionInfo.class)))
+            }, responseCode = "400", description = "Error occured while trying to remove coach (eg. no coach with such ID)")
     })
     @DeleteMapping("/{coachId}")
-    public ResponseEntity<?> removeCoach(@Parameter(required = true, description = "ID of coach to delete") @PathVariable int coachId) {
+    public ResponseEntity<?> removeCoach(
+            @Parameter(required = true, description = "ID of coach to delete") @PathVariable int coachId) {
         Coach deleted;
         try {
             deleted = service.removeCoach(coachId);
@@ -99,16 +88,12 @@ public class CoachesController {
     }
 
     @ApiResponses(value = {
-        @ApiResponse(content = {
-                @Content(mediaType = "application/json",
-                array = @ArraySchema(schema = @Schema(implementation = Coach.class))
-                )
-        }, responseCode = "200", description = "Correctly deleted all coaches and returned deleted coaches"),
-        @ApiResponse(content = {
-            @Content(mediaType = "application/json",
-            array = @ArraySchema(schema = @Schema(implementation = ExceptionInfo.class))
-            )
-    }, responseCode = "400", description = "Error occured due to coach being assigned to some event")
+            @ApiResponse(content = {
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Coach.class)))
+            }, responseCode = "200", description = "Correctly deleted all coaches and returned deleted coaches"),
+            @ApiResponse(content = {
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ExceptionInfo.class)))
+            }, responseCode = "400", description = "Error occured due to coach being assigned to some event")
     })
     @DeleteMapping("")
     public ResponseEntity<?> removeAllCoaches() {
@@ -120,24 +105,17 @@ public class CoachesController {
     }
 
     @ApiResponses(value = {
-        @ApiResponse(content = {
-                @Content(mediaType = "application/json",
-                array = @ArraySchema(schema = @Schema(implementation = Coach.class))
-                )
-        }, responseCode = "200", description = "Correctly updated specified coach and returned old version"),
-        @ApiResponse(content = {
-            @Content(mediaType = "application/json",
-            array = @ArraySchema(schema = @Schema(implementation = ExceptionInfo.class))
-            )
-    }, responseCode = "400", description = "Could not perform update becaouse spefified coach does not exist")
+            @ApiResponse(content = {
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Coach.class)))
+            }, responseCode = "200", description = "Correctly updated specified coach and returned old version"),
+            @ApiResponse(content = {
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ExceptionInfo.class)))
+            }, responseCode = "400", description = "Could not perform update becaouse spefified coach does not exist")
     })
     @PatchMapping("/{coachId}")
-    public ResponseEntity<?> patchCoach(@Parameter(required = true, description = "ID of coach to update") @PathVariable int coachId, 
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Information about coach to add", 
-    content = @Content(
-        mediaType = "application/json",
-        schema = @Schema(implementation = Coach.class)
-    )) @org.springframework.web.bind.annotation.RequestBody Coach coach) {
+    public ResponseEntity<?> patchCoach(
+            @Parameter(required = true, description = "ID of coach to update") @PathVariable int coachId,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Information about coach to add", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Coach.class))) @org.springframework.web.bind.annotation.RequestBody Coach coach) {
         Coach pached = service.patchCoach(coachId, coach);
 
         if (pached == null)
