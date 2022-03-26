@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jwzp_ww_fs.app.Exceptions.EventDoesNotExistException;
 import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.Event;
@@ -22,6 +23,7 @@ import jwzp_ww_fs.app.services.EventsService;
 
 @RestController
 @RequestMapping("/api/events")
+@Tag(name = "Events", description = "events that are organized in clubs by coaches")
 public class EventsController {
 
     private EventsService service;
