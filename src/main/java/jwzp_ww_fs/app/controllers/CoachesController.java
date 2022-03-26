@@ -44,7 +44,7 @@ public class CoachesController {
 
     @ApiResponses(value = {
             @ApiResponse(content = {
-                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Coach.class)))
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Coach.class))),
             }, responseCode = "200", description = "Returned coach with specified ID or nothing if there is no coach with such ID"),
     })
     @GetMapping("/{coachId}")

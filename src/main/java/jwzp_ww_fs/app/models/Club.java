@@ -3,6 +3,8 @@ package jwzp_ww_fs.app.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import javax.persistence.*;
 import java.time.DayOfWeek;
 import java.util.HashMap;
@@ -12,7 +14,26 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "clubs")
+@Schema(example = Club.exampleSchema)
 public class Club {
+    public static final String exampleSchema = """
+    {
+        \"name\": \"string\",
+        \"address\": \"string\",
+        \"whenOpen\": {
+            \"FRIDAY\": {
+                \"from\": \"00:00\", \"to\": \"00:00\"
+            },
+            \"SATURDAY\": {
+                \"from\": \"00:00\", \"to\": \"00:00\"
+            },
+            \"SUNDAY\": {
+                \"from\": \"00:00\", \"to\": \"00:00\"
+            }
+        }
+    }
+    """;
+
     @JsonIgnore
     @Id
     @GeneratedValue(strategy = IDENTITY)

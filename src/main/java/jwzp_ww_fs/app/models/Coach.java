@@ -10,9 +10,17 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @Entity
 @Table(name="coaches")
+@Schema(example = Coach.exampleSchema)
 public class Coach {
+    public static final String exampleSchema = """
+        {\"firstName\": \"string\",
+        \"lastName\": \"string\",
+        \"yearOfBirth\": 0}""";
+
     @JsonIgnore
     @Id
     @GeneratedValue(strategy = IDENTITY)
