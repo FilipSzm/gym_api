@@ -29,7 +29,7 @@ import jwzp_ww_fs.app.models.ExceptionInfo;
 import jwzp_ww_fs.app.services.EventsService;
 
 @RestController
-@RequestMapping("/api/events")
+@RequestMapping("/api/v1/events")
 @Tag(name = "Events", description = "events that are organized in clubs by coaches")
 public class EventsController {
 

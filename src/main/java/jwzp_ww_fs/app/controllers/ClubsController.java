@@ -20,7 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/clubs")
+@RequestMapping("/api/v1/clubs")
 @Tag(name = "Clubs", description = "Clubs where coaches conduct events")
 public class ClubsController {
 
