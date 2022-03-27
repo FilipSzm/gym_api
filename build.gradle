@@ -22,6 +22,7 @@ jar {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-hateoas'
 
 	// testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
@@ -39,6 +40,10 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-ui:1.6.6'
 
 	testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.8.2'
+
+	// lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {

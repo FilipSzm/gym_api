@@ -2,10 +2,13 @@ package jwzp_ww_fs.app.controllers;
 
 import jwzp_ww_fs.app.Exceptions.ClubHasEventsException;
 import jwzp_ww_fs.app.Exceptions.GymException;
+import jwzp_ww_fs.app.models.Club;
 import jwzp_ww_fs.app.models.Coach;
 import jwzp_ww_fs.app.models.ExceptionInfo;
 import jwzp_ww_fs.app.services.CoachesService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -121,5 +124,10 @@ public class CoachesController {
         if (pached == null)
             return ResponseEntity.badRequest().body("Could not update coach with that ID");
         return ResponseEntity.ok().body(pached);
+    }
+
+    @GetMapping("/page")
+    public Page<Coach> getAll(Pageable p) {
+        return service.getPage(p);
     }
 }

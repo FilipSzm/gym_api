@@ -5,6 +5,9 @@ import jwzp_ww_fs.app.Exceptions.EventHoursInClubException;
 import jwzp_ww_fs.app.models.*;
 import jwzp_ww_fs.app.repositories.ClubsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -126,5 +129,9 @@ public class ClubsService {
 
             return firstDayOk && secondDayOk;
         }
+    }
+
+    public Page<Club> getPage(Pageable p) {
+        return repository.findAll(p);
     }
 }

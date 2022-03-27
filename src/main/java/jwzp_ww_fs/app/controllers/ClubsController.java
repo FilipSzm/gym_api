@@ -1,10 +1,14 @@
 package jwzp_ww_fs.app.controllers;
 
 import jwzp_ww_fs.app.Exceptions.GymException;
+import jwzp_ww_fs.app.dto.ClubRepresentation;
 import jwzp_ww_fs.app.models.Club;
 import jwzp_ww_fs.app.models.ExceptionInfo;
 import jwzp_ww_fs.app.services.ClubsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,9 +22,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping("/api/v1/clubs")
+@RequestMapping({"/api/v1/clubs", "/api/clubs"})
 @Tag(name = "Clubs", description = "Clubs where coaches conduct events")
 public class ClubsController {
 
@@ -125,5 +133,23 @@ public class ClubsController {
         if (patched == null)
             return ResponseEntity.badRequest().body("Could not update club with that ID");
         return ResponseEntity.ok().body(patched);
+    }
+
+    @GetMapping(value = "/hateoas", produces = "application/hal+json")
+    public List<ClubRepresentation> getAllHateoas() {
+        var people = service.getAllClubs();
+        return people.stream().map(this::represent).collect(Collectors.toList());
+    }
+
+    private ClubRepresentation represent(Club club) {
+        Link selfLink = linkTo(methodOn(ClubsController.class).getClub(club.id())).withSelfRel();
+        var representation = ClubRepresentation.fromClub(club);
+        representation.add(selfLink);
+        return representation;
+    }
+
+    @GetMapping("/page")
+    public Page<Club> getAll(Pageable p) {
+        return service.getPage(p);
     }
 }
