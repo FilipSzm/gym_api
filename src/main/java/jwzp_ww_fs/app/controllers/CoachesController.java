@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/coaches")
+@RequestMapping({"/api/v1/coaches", "api/coaches"})
 @Tag(name = "Coaches", description = "Coaches responsible for conducting events in clubs")
 public class CoachesController {
 
