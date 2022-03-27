@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import javax.persistence.*;
 import java.time.LocalTime;
 
@@ -11,7 +13,14 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "opening_hours")
+@Schema(example = OpeningHours.exampleSchema)
 public class OpeningHours {
+    public static final String exampleSchema = """
+    {
+        \"from\": \"00:00\",
+        \"to\": \"00:00\"
+    }""";
+
     @JsonIgnore
     @Id
     @GeneratedValue(strategy = IDENTITY)

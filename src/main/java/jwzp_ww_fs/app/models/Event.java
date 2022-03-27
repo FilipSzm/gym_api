@@ -8,11 +8,12 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -21,7 +22,16 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name="events")
+@Schema(example = Event.exampleSchema)
 public class Event {
+    public static final String exampleSchema = """
+        {\"title\": \"string\",
+        \"day\": \"MONDAY\",
+        \"time\": \"00:00\",
+        \"duration\": \"PT10M\",
+        \"coachId\": 0,
+        \"clubId\": 0}""";
+
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private int id;
