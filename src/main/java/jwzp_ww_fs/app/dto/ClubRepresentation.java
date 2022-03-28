@@ -4,6 +4,8 @@ import jwzp_ww_fs.app.models.Club;
 import jwzp_ww_fs.app.models.OpeningHours;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import org.springframework.hateoas.RepresentationModel;
 
 import java.time.DayOfWeek;
@@ -11,6 +13,7 @@ import java.util.Map;
 
 @Data
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper=false)
 public class ClubRepresentation extends RepresentationModel<ClubRepresentation> {
     private final int id;
     private final String name;

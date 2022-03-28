@@ -28,7 +28,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping({"/api/v1/clubs", "/api/clubs"})
+@RequestMapping({ "/api/v1/clubs", "/api/clubs" })
 @Tag(name = "Clubs", description = "Clubs where coaches conduct events")
 public class ClubsController {
 
@@ -148,8 +148,13 @@ public class ClubsController {
         return representation;
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(content = {
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Page.class)))
+            }, responseCode = "200", description = "Correctly return page of coaches")
+    })
     @GetMapping("/page")
-    public Page<Club> getAll(Pageable p) {
+    public Page<Club> getAll(@Parameter(required = false, description = "data for paging") Pageable p) {
         return service.getPage(p);
     }
 }
