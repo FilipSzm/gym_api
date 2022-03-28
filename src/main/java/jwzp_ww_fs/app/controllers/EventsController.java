@@ -32,7 +32,7 @@ import jwzp_ww_fs.app.models.ExceptionInfo;
 import jwzp_ww_fs.app.services.EventsService;
 
 @RestController
-@RequestMapping({"/api/v1/events", "api/events"})
+@RequestMapping({ "/api/v1/events", "api/events" })
 @Tag(name = "Events", description = "events that are organized in clubs by coaches")
 public class EventsController {
 
@@ -49,8 +49,9 @@ public class EventsController {
             }, responseCode = "200", description = "Correctly returned all events")
     })
     @GetMapping("")
-    public List<Event> getEventWithCoachAndClub(@RequestParam Optional<Integer> coachId,
-            @RequestParam Optional<Integer> clubId) {
+    public List<Event> getEventWithCoachAndClub(
+            @Parameter(required = false, description = "ID of coach to narrow search") @RequestParam Optional<Integer> coachId,
+            @Parameter(required = false, description = "ID of club to narrow search") @RequestParam Optional<Integer> clubId) {
 
         if (coachId.isEmpty() && clubId.isEmpty())
             return service.getAllEvents();
@@ -134,8 +135,16 @@ public class EventsController {
         }
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(content = {
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Page.class)))
+            }, responseCode = "200", description = "Correctly return page of coaches")
+    })
     @GetMapping("/page")
-    public Page<Event> getEventsPaged(@RequestParam Optional<Integer> coachId, @RequestParam Optional<Integer> clubId, Pageable p) {
+    public Page<Event> getEventsPaged(
+            @Parameter(required = false, description = "ID of coach to narrow search") @RequestParam Optional<Integer> coachId,
+            @Parameter(required = false, description = "ID of club to narrow search") @RequestParam Optional<Integer> clubId,
+            @Parameter(required = false, description = "data for paging") Pageable p) {
         return service.getPage(p, clubId, coachId);
     }
 }
