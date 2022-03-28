@@ -135,7 +135,7 @@ public class EventsController {
     }
 
     @GetMapping("/page")
-    public Page<Event> getAll(Pageable p) {
-        return service.getPage(p);
+    public Page<Event> getEventsPaged(@RequestParam Optional<Integer> coachId, @RequestParam Optional<Integer> clubId, Pageable p) {
+        return service.getPage(p, clubId, coachId);
     }
 }

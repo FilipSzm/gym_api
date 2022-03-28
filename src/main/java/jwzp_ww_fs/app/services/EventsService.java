@@ -209,15 +209,18 @@ public class EventsService {
     }
 
     public List<Event> getEventsByCoach(int coachId) {
-        return repository.findAll().stream().filter(c -> c.coachId() == coachId).toList();
+        // return repository.findAll().stream().filter(c -> c.coachId() == coachId).toList();
+        return repository.findEventByCoachId(coachId);
     }
 
     public List<Event> getEventsByClub(int clubId) {
-        return repository.findAll().stream().filter(c -> c.clubId() == clubId).toList();
+        // return repository.findAll().stream().filter(c -> c.clubId() == clubId).toList();
+        return repository.findEventByClubId(clubId);
     }
 
     public List<Event> getEventsByCoachAndClub(int coachId, int clubId) {
-        return repository.findAll().stream().filter(c -> c.coachId() == coachId && c.clubId() == clubId).toList();
+        // return repository.findAll().stream().filter(c -> c.coachId() == coachId && c.clubId() == clubId).toList();
+        return repository.findEventByClubIdAndCoachId(clubId, coachId);
     }
 
     public Event getEvent(int id) {
@@ -225,7 +228,10 @@ public class EventsService {
         return event.isPresent() ? event.get() : null;
     }
 
-    public Page<Event> getPage(Pageable p) {
+    public Page<Event> getPage(Pageable p, Optional<Integer> clubId, Optional<Integer> coachId) {
+        if (clubId.isPresent() && coachId.isPresent()) return repository.findEventByClubIdAndCoachId(p, clubId.get(), coachId.get());
+        if (clubId.isPresent() && coachId.isEmpty()) return repository.findEventByClubId(p, clubId.get());
+        if (clubId.isEmpty() && coachId.isPresent()) return repository.findEventByCoachId(p, coachId.get());
         return repository.findAll(p);
     }
 }
