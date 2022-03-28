@@ -2,7 +2,6 @@ package jwzp_ww_fs.app.controllers;
 
 import jwzp_ww_fs.app.Exceptions.ClubHasEventsException;
 import jwzp_ww_fs.app.Exceptions.GymException;
-import jwzp_ww_fs.app.models.Club;
 import jwzp_ww_fs.app.models.Coach;
 import jwzp_ww_fs.app.models.ExceptionInfo;
 import jwzp_ww_fs.app.services.CoachesService;
@@ -126,8 +125,13 @@ public class CoachesController {
         return ResponseEntity.ok().body(pached);
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(content = {
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Page.class)))
+            }, responseCode = "200", description = "Correctly return page of coaches")
+    })
     @GetMapping("/page")
-    public Page<Coach> getAll(Pageable p) {
+    public Page<Coach> getAll(@Parameter(required = false, description = "data for paging") Pageable p) {
         return service.getPage(p);
     }
 }

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -47,5 +49,10 @@ import jwzp_ww_fs.app.models.Event;
 // }
 
 public interface EventsRepository extends JpaRepository<Event, Integer> {
-    
+    public List<Event> findEventByCoachId(int coachId);
+    public List<Event> findEventByClubId(int clubId);
+    public List<Event> findEventByClubIdAndCoachId(int clubId, int coachId);
+    public Page<Event> findEventByCoachId(Pageable p, int coachId);
+    public Page<Event> findEventByClubId(Pageable p, int coachId);
+    public Page<Event> findEventByClubIdAndCoachId(Pageable p, int clubId, int coachId);
 }

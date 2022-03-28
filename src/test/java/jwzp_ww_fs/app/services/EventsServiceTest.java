@@ -48,29 +48,33 @@ public class EventsServiceTest {
 
     @BeforeEach
     public void initializeMocks() {
-        var exampleEvents = List.of(
-            new Event("E1", DayOfWeek.MONDAY, LocalTime.of(14, 30), Duration.ofHours(3), 1, 1),
-            new Event("E2", DayOfWeek.MONDAY, LocalTime.of(23, 30), Duration.ofHours(3), 1, 1),
-            new Event("E3", DayOfWeek.TUESDAY, LocalTime.of(1, 0), Duration.ofHours(3), 1, 1),
-            new Event("E4", DayOfWeek.TUESDAY, LocalTime.of(17, 0), Duration.ofHours(3), 1, 1),
-            new Event("E5", DayOfWeek.TUESDAY, LocalTime.of(5, 0), Duration.ofHours(3), 1, 1),
-            new Event("E6", DayOfWeek.TUESDAY, LocalTime.of(5, 0), Duration.ofHours(12), 2, 1),
-            new Event("E7", DayOfWeek.TUESDAY, LocalTime.of(17, 0), Duration.ofHours(8), 1, 1),
-            new Event("E8", DayOfWeek.WEDNESDAY, LocalTime.of(4, 0), Duration.ofHours(3), 1, 1),
-            new Event("E9", DayOfWeek.TUESDAY, LocalTime.of(1, 0), Duration.ofHours(22), 1, 2)
-        );
+        Event e0 = new Event("E0", DayOfWeek.MONDAY, LocalTime.of(14, 30), Duration.ofHours(3), 1, 1);
+        Event e1 = new Event("E1", DayOfWeek.MONDAY, LocalTime.of(23, 30), Duration.ofHours(3), 1, 1);
+        Event e2 = new Event("E2", DayOfWeek.TUESDAY, LocalTime.of(1, 0), Duration.ofHours(3), 1, 1);
+        Event e3 = new Event("E3", DayOfWeek.TUESDAY, LocalTime.of(17, 0), Duration.ofHours(3), 1, 1);
+        Event e4 = new Event("E4", DayOfWeek.TUESDAY, LocalTime.of(5, 0), Duration.ofHours(3), 1, 1);
+        Event e5 = new Event("E5", DayOfWeek.TUESDAY, LocalTime.of(5, 0), Duration.ofHours(12), 2, 1);
+        Event e6 = new Event("E6", DayOfWeek.TUESDAY, LocalTime.of(17, 0), Duration.ofHours(8), 1, 1);
+        Event e7 = new Event("E7", DayOfWeek.WEDNESDAY, LocalTime.of(4, 0), Duration.ofHours(3), 1, 1);
+        Event e8 = new Event("E8", DayOfWeek.TUESDAY, LocalTime.of(1, 0), Duration.ofHours(22), 1, 2);
 
-        lenient().when(repository.findAll()).thenReturn(exampleEvents);
-        lenient().when(repository.getById(1)).thenReturn(exampleEvents.get(0));
-        lenient().when(repository.findById(1)).thenReturn(Optional.of(exampleEvents.get(0)));
+        lenient().when(repository.findAll()).thenReturn(List.of(e0,e1,e2,e3,e4,e5,e6,e7,e8));
+
+        lenient().when(repository.findEventByClubId(1)).thenReturn(List.of(e0,e1,e2,e3,e4,e6,e7,e8));
+        lenient().when(repository.findEventByClubId(2)).thenReturn(List.of(e5));
+
+        lenient().when(repository.findEventByCoachId(1)).thenReturn(List.of(e0,e1,e2,e3,e4,e5,e6,e7));
+        lenient().when(repository.findEventByCoachId(2)).thenReturn(List.of(e8));
+
+        lenient().when(repository.findEventByClubIdAndCoachId(1,1)).thenReturn(List.of(e0,e1,e2,e3,e4,e6,e7));
+        lenient().when(repository.findEventByClubIdAndCoachId(1,2)).thenReturn(List.of(e8));
+        lenient().when(repository.findEventByClubIdAndCoachId(2,1)).thenReturn(List.of(e5));
+        lenient().when(repository.findEventByClubIdAndCoachId(2,2)).thenReturn(List.of());
+
+        lenient().when(repository.getById(1)).thenReturn(e0);
+        lenient().when(repository.findById(1)).thenReturn(Optional.of(e0));
         lenient().when(repository.findById(not(eq(1)))).thenReturn(Optional.empty());
-        
-        // lenient().when(repository.updateEvent(eq(1), Mockito.any())).thenReturn(exampleEvents.get(0));
-        
-        // lenient().when(repository.removeEventWithId(1)).thenReturn(exampleEvents.get(0));
-
-        // lenient().when(repository.removeAllEvents()).thenReturn(exampleEvents);
-        
+                        
         Club exampleClub = new Club("name", "address", null);
         lenient().when(clubsService.getClub(1)).thenReturn(exampleClub);
         lenient().when(clubsService.getClub(2)).thenReturn(null);
