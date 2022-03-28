@@ -9,7 +9,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import jwzp_ww_fs.app.models.Club;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import jwzp_ww_fs.app.Exceptions.EventCoachOverlapException;
@@ -220,5 +223,9 @@ public class EventsService {
     public Event getEvent(int id) {
         Optional<Event> event = repository.findById(id);
         return event.isPresent() ? event.get() : null;
+    }
+
+    public Page<Event> getPage(Pageable p) {
+        return repository.findAll(p);
     }
 }

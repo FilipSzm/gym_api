@@ -2,9 +2,12 @@ package jwzp_ww_fs.app.services;
 
 import jwzp_ww_fs.app.Exceptions.ClubHasEventsException;
 import jwzp_ww_fs.app.Exceptions.CoachHasEventsException;
+import jwzp_ww_fs.app.models.Club;
 import jwzp_ww_fs.app.models.Coach;
 import jwzp_ww_fs.app.repositories.CoachRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -73,5 +76,9 @@ public class CoachesService {
 
     public Coach getCoach(int coachId) {
         return repository.findById(coachId).orElse(null);
+    }
+
+    public Page<Coach> getPage(Pageable p) {
+        return repository.findAll(p);
     }
 }

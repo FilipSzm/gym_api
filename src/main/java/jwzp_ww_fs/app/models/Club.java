@@ -139,4 +139,16 @@ public class Club {
     public void deleteEvents() {
         numberOfEvents = 0;
     }
+
+    public int id() {
+        return id;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public String address() {
+        return address;
+    }
 }
