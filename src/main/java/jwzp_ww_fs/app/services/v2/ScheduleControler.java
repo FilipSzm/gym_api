@@ -24,7 +24,8 @@ import jwzp_ww_fs.app.Exceptions.EventTooLongException;
 import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.OpeningHours;
 import jwzp_ww_fs.app.models.v2.Schedule;
-import jwzp_ww_fs.app.repositories.EventsRepository;
+import jwzp_ww_fs.app.repositories.v1.EventsRepository;
+import jwzp_ww_fs.app.repositories.v2.ScheduleRepository;
 import jwzp_ww_fs.app.services.ClubsService;
 import jwzp_ww_fs.app.services.CoachesService;
 
@@ -200,7 +201,7 @@ public class ScheduleControler {
         if (!isScheduleCorrectLength(schedule))
             throw new EventTooLongException();
 
-        Schedule scheduleToUpdate = repository.getById(schedule);
+        Schedule scheduleToUpdate = repository.getById(scheduleId);
         scheduleToUpdate.updateData(schedule);
         repository.save(scheduleToUpdate);
 

@@ -24,7 +24,7 @@ import jwzp_ww_fs.app.Exceptions.EventTooLongException;
 import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.OpeningHours;
 import jwzp_ww_fs.app.models.v1.Event;
-import jwzp_ww_fs.app.repositories.EventsRepository;
+import jwzp_ww_fs.app.repositories.v1.EventsRepository;
 
 @Service
 public class EventsService {

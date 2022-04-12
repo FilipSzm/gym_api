@@ -1,4 +1,4 @@
-package jwzp_ww_fs.app.repositories;
+package jwzp_ww_fs.app.repositories.v2;
 
 import java.util.HashMap;
 import java.util.List;
