@@ -20,19 +20,19 @@ public class CoachesService {
         this.repository = repository;
     }
 
-    synchronized void addEventForCoach(int coachId) {
+    public synchronized void addEventForCoach(int coachId) {
         Coach coach = repository.getById(coachId);
         coach.addEvent();
         repository.save(coach);
     }
 
-    synchronized void subtractEventFromCoach(int coachId) {
+    public synchronized void subtractEventFromCoach(int coachId) {
         Coach coach = repository.getById(coachId);
         coach.subEvent();
         repository.save(coach);
     }
 
-    synchronized void deleteAllEvents() {
+    public synchronized void deleteAllEvents() {
         List<Coach> coaches = repository.findAll();
         for (var coach : coaches) {
             coach.deleteEvents();

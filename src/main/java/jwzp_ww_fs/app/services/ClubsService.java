@@ -26,7 +26,7 @@ public class ClubsService {
         this.repository = repository;
     }
 
-    void setFillLevel(int clubId, Map<DayOfWeek, OpeningHours> fillLevel) {
+    public void setFillLevel(int clubId, Map<DayOfWeek, OpeningHours> fillLevel) {
         var converted = new HashMap<DayOfWeek, EventHours>();
         for (var entry : fillLevel.entrySet())
             converted.put(entry.getKey(), new EventHours(entry.getValue().from(), entry.getValue().to()));
@@ -38,13 +38,13 @@ public class ClubsService {
         repository.save(club);
     }
 
-    synchronized void addEventToClub(int clubId) {
+    public synchronized void addEventToClub(int clubId) {
         var club = repository.getById(clubId);
         club.addEvent();
         repository.save(club);
     }
 
-    synchronized void subtractEventFromClub(int clubId) {
+    public synchronized void subtractEventFromClub(int clubId) {
         var club = repository.getById(clubId);
         club.subEvent();
         repository.save(club);
@@ -109,7 +109,7 @@ public class ClubsService {
         return repository.findById(clubId).orElse(null);
     }
 
-    boolean isEventInClubOpeningHours(Event eventToAdd) {
+    public boolean isEventInClubOpeningHours(Event eventToAdd) {
         LocalTime beg = eventToAdd.time();
         LocalTime end = eventToAdd.time().plus(eventToAdd.duration());
 
