@@ -3,6 +3,7 @@ package jwzp_ww_fs.app.services;
 import jwzp_ww_fs.app.Exceptions.ClubHasEventsException;
 import jwzp_ww_fs.app.Exceptions.EventHoursInClubException;
 import jwzp_ww_fs.app.models.*;
+import jwzp_ww_fs.app.models.v1.Event;
 import jwzp_ww_fs.app.repositories.ClubsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

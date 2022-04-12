@@ -33,7 +33,7 @@ import jwzp_ww_fs.app.Exceptions.EventNotInOpeningHoursException;
 import jwzp_ww_fs.app.Exceptions.EventTooLongException;
 import jwzp_ww_fs.app.models.Club;
 import jwzp_ww_fs.app.models.Coach;
-import jwzp_ww_fs.app.models.Event;
+import jwzp_ww_fs.app.models.v1.Event;
 import jwzp_ww_fs.app.repositories.EventsRepository;
 
 @ExtendWith(MockitoExtension.class)

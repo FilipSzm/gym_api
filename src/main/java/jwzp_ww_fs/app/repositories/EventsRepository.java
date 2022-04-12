@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import jwzp_ww_fs.app.models.Event;
+import jwzp_ww_fs.app.models.v1.Event;
 
 // @Repository
 // public class EventsRepository {

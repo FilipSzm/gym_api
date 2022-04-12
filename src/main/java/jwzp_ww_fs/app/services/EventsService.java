@@ -22,8 +22,8 @@ import jwzp_ww_fs.app.Exceptions.EventNoSuchCoachException;
 import jwzp_ww_fs.app.Exceptions.EventNotInOpeningHoursException;
 import jwzp_ww_fs.app.Exceptions.EventTooLongException;
 import jwzp_ww_fs.app.Exceptions.GymException;
-import jwzp_ww_fs.app.models.Event;
 import jwzp_ww_fs.app.models.OpeningHours;
+import jwzp_ww_fs.app.models.v1.Event;
 import jwzp_ww_fs.app.repositories.EventsRepository;
 
 @Service
