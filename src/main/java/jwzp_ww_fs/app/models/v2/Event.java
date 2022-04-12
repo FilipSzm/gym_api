@@ -1,6 +1,5 @@
 package jwzp_ww_fs.app.models.v2;
 
-import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;

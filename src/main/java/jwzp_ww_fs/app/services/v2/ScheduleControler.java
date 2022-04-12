@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import jwzp_ww_fs.app.models.Club;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +23,6 @@ import jwzp_ww_fs.app.Exceptions.EventTooLongException;
 import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.OpeningHours;
 import jwzp_ww_fs.app.models.v2.Schedule;
-import jwzp_ww_fs.app.repositories.v1.EventsRepository;
 import jwzp_ww_fs.app.repositories.v2.ScheduleRepository;
 import jwzp_ww_fs.app.services.ClubsService;
 import jwzp_ww_fs.app.services.CoachesService;
