@@ -48,7 +48,7 @@ public class ScheduleControler {
         if (!existsClubForSchedule(schedule)) throw new EventNoSuchClubException();
         if (!existsCoachForSchedule(schedule)) throw new EventNoSuchCoachException();
         if (existsSimultaniousScheduleWithCoach(schedule, null)) throw new EventCoachOverlapException();
-        if (!clubsService.isEventInClubOpeningHours(schedule)) throw new EventNotInOpeningHoursException();
+        if (!clubsService.isScheduleInClubOpeningHours(schedule)) throw new EventNotInOpeningHoursException();
         if (!isScheduleCorrectLength(schedule)) throw new EventTooLongException();
 
         clubsService.addEventToClub(schedule.clubId());
@@ -196,7 +196,7 @@ public class ScheduleControler {
             throw new EventNoSuchCoachException();
         if (existsSimultaniousScheduleWithCoach(schedule, currentScheduleWithId))
             throw new EventCoachOverlapException();
-        if (!clubsService.isEventInClubOpeningHours(schedule))
+        if (!clubsService.isScheduleInClubOpeningHours(schedule))
             throw new EventNotInOpeningHoursException();
         if (!isScheduleCorrectLength(schedule))
             throw new EventTooLongException();
