@@ -27,51 +27,51 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jwzp_ww_fs.app.Exceptions.EventDoesNotExistException;
 import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.ExceptionInfo;
-import jwzp_ww_fs.app.models.v1.Event;
-import jwzp_ww_fs.app.services.EventsService;
+import jwzp_ww_fs.app.models.v2.Schedule;
+import jwzp_ww_fs.app.services.v2.ScheduleService;
 
 @RestController
 @RequestMapping({ "/api/v2/schedule", "api/schedule" })
-@Tag(name = "Events", description = "events that are organized in clubs by coaches")
+@Tag(name = "Schedules", description = "schedules that are organized in clubs by coaches")
 public class ScheduleControler {
 
-    private EventsService service;
+    private ScheduleService service;
 
     @Autowired
-    public ScheduleControler(EventsService service) {
+    public ScheduleControler(ScheduleService service) {
         this.service = service;
     }
 
     @ApiResponses(value = {
             @ApiResponse(content = {
-                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Event.class)))
-            }, responseCode = "200", description = "Correctly returned all events")
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Schedule.class)))
+            }, responseCode = "200", description = "Correctly returned all schedules")
     })
     @GetMapping("")
-    public List<Event> getEventWithCoachAndClub(
+    public List<Schedule> getScheduleWithCoachAndClub(
             @Parameter(required = false, description = "ID of coach to narrow search") @RequestParam Optional<Integer> coachId,
             @Parameter(required = false, description = "ID of club to narrow search") @RequestParam Optional<Integer> clubId) {
 
         if (coachId.isEmpty() && clubId.isEmpty())
-            return service.getAllEvents();
+            return service.getAllSchedules();
         else if (coachId.isEmpty() && clubId.isPresent())
-            return service.getEventsByClub(clubId.get());
+            return service.getSchedulesByClub(clubId.get());
         else if (coachId.isPresent() && clubId.isEmpty())
-            return service.getEventsByCoach(coachId.get());
-        return service.getEventsByCoachAndClub(coachId.get(), clubId.get());
+            return service.getSchedulesByCoach(coachId.get());
+        return service.getSchedulesByCoachAndClub(coachId.get(), clubId.get());
     }
 
     @ApiResponses(value = {
             @ApiResponse(content = {
-                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Event.class)))
-            }, responseCode = "200", description = "Succesfully added event to database and returned it"),
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Schedule.class)))
+            }, responseCode = "200", description = "Succesfully added schedule to database and returned it"),
     })
     @PostMapping("")
-    public ResponseEntity<?> addEvent(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Information about event to add", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Event.class))) @org.springframework.web.bind.annotation.RequestBody Event event) {
+    public ResponseEntity<?> addSchedule(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Information about schedule to add", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Schedule.class))) @org.springframework.web.bind.annotation.RequestBody Schedule schedule) {
         try {
-            service.addEvent(event);
-            return ResponseEntity.ok().body(event);
+            service.addSchedule(schedule);
+            return ResponseEntity.ok().body(schedule);
         } catch (GymException ex) {
             return ResponseEntity.badRequest().body(ex.getErrorInfo());
         }
@@ -79,37 +79,37 @@ public class ScheduleControler {
 
     @ApiResponses(value = {
             @ApiResponse(content = {
-                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Event.class)))
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Schedule.class)))
             }) })
     @DeleteMapping("")
-    public List<Event> removeAllEvents() {
-        return service.removeAllEvents();
+    public List<Schedule> removeAllSchedules() {
+        return service.removeAllSchedules();
     }
 
     @ApiResponses(value = {
             @ApiResponse(content = {
-                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Event.class)))
-            }, responseCode = "200", description = "Returned event with specified ID or nothing if there is no event with such ID"),
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Schedule.class)))
+            }, responseCode = "200", description = "Returned schedule with specified ID or nothing if there is no schedule with such ID"),
     })
     @GetMapping("/{id}")
-    public Event getEvent(
-            @Parameter(required = true, description = "ID of event to get", in = ParameterIn.PATH) @PathVariable int id) {
-        return service.getEvent(id);
+    public Schedule getSchedule(
+            @Parameter(required = true, description = "ID of schedule to get", in = ParameterIn.PATH) @PathVariable int id) {
+        return service.getSchedule(id);
     }
 
     @ApiResponses(value = {
             @ApiResponse(content = {
-                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Event.class)))
-            }, responseCode = "200", description = "Correctly returned deleted event"),
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Schedule.class)))
+            }, responseCode = "200", description = "Correctly returned deleted schedule"),
             @ApiResponse(content = {
                     @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ExceptionInfo.class)))
-            }, responseCode = "400", description = "Error occured while trying to remove event (eg. no event with such ID)")
+            }, responseCode = "400", description = "Error occured while trying to remove schedule (eg. no schedule with such ID)")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteEvent(
-            @Parameter(required = true, description = "ID of event to delete") @PathVariable int id) {
+    public ResponseEntity<?> deleteSchedule(
+            @Parameter(required = true, description = "ID of schedule to delete") @PathVariable int id) {
         try {
-            return ResponseEntity.ok().body(service.removeEvent(id));
+            return ResponseEntity.ok().body(service.removeSchedule(id));
         } catch (EventDoesNotExistException ex) {
             return ResponseEntity.badRequest().body(ex.getErrorInfo());
         }
@@ -117,18 +117,18 @@ public class ScheduleControler {
 
     @ApiResponses(value = {
             @ApiResponse(content = {
-                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Event.class)))
-            }, responseCode = "200", description = "Correctly updated specified event and returned old version"),
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Schedule.class)))
+            }, responseCode = "200", description = "Correctly updated specified schedule and returned old version"),
             @ApiResponse(content = {
                     @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ExceptionInfo.class)))
-            }, responseCode = "400", description = "Could not perform update becaouse spefified event does not exist")
+            }, responseCode = "400", description = "Could not perform update becaouse spefified schedule does not exist")
     })
     @PatchMapping("/{id}")
-    public ResponseEntity<?> updateEvent(
-            @Parameter(required = true, description = "ID of event to update") @PathVariable int id,
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Information about coach to add", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Event.class))) @org.springframework.web.bind.annotation.RequestBody Event event) {
+    public ResponseEntity<?> updateSchedule(
+            @Parameter(required = true, description = "ID of schedule to update") @PathVariable int id,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Information about coach to add", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Schedule.class))) @org.springframework.web.bind.annotation.RequestBody Schedule schedule) {
         try {
-            return ResponseEntity.ok().body(service.updateEvent(id, event));
+            return ResponseEntity.ok().body(service.updateSchedule(id, schedule));
         } catch (GymException ex) {
             return ResponseEntity.badRequest().body(ex.getErrorInfo());
         }
@@ -140,7 +140,7 @@ public class ScheduleControler {
             }, responseCode = "200", description = "Correctly return page of coaches")
     })
     @GetMapping("/page")
-    public Page<Event> getEventsPaged(
+    public Page<Schedule> getSchedulesPaged(
             @Parameter(required = false, description = "ID of coach to narrow search") @RequestParam Optional<Integer> coachId,
             @Parameter(required = false, description = "ID of club to narrow search") @RequestParam Optional<Integer> clubId,
             @Parameter(required = false, description = "data for paging") Pageable p) {

@@ -1,33 +1,23 @@
 package jwzp_ww_fs.app.services.v2;
 
-import java.time.Clock;
 import java.time.DayOfWeek;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
-import jwzp_ww_fs.app.models.Club;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jwzp_ww_fs.app.Exceptions.EventCoachOverlapException;
 import jwzp_ww_fs.app.Exceptions.EventDoesNotExistException;
-import jwzp_ww_fs.app.Exceptions.EventNoSuchClubException;
-import jwzp_ww_fs.app.Exceptions.EventNoSuchCoachException;
 import jwzp_ww_fs.app.Exceptions.EventNotInOpeningHoursException;
-import jwzp_ww_fs.app.Exceptions.EventTooLongException;
 import jwzp_ww_fs.app.Exceptions.GymException;
-import jwzp_ww_fs.app.models.OpeningHours;
-import jwzp_ww_fs.app.models.v2.Event;
+import jwzp_ww_fs.app.models.v2.EventInstance;
+import jwzp_ww_fs.app.models.v2.EventInstanceData;
 import jwzp_ww_fs.app.models.v2.Schedule;
-import jwzp_ww_fs.app.repositories.v2.EventsRepository;
+import jwzp_ww_fs.app.repositories.v2.EventsInstancesRepository;
 import jwzp_ww_fs.app.services.ClubsService;
 import jwzp_ww_fs.app.services.CoachesService;
 
@@ -64,22 +54,20 @@ import jwzp_ww_fs.app.services.CoachesService;
 // }
 
 @Service
-public class EventsService {
-    EventsRepository repository;
+public class EventsInstancesService {
+    EventsInstancesRepository repository;
 
     ClubsService clubsService;
     CoachesService coachesService;
     ScheduleService scheduleService;
 
-    Clock clock;
-
     @Autowired
-    public EventsService(EventsRepository repository, ClubsService clubsService, CoachesService coachesService, ScheduleService scheduleService, Clock clock) {
+    public EventsInstancesService(EventsInstancesRepository repository, ClubsService clubsService, CoachesService coachesService,
+            ScheduleService scheduleService) {
         this.repository = repository;
         this.clubsService = clubsService;
         this.coachesService = coachesService;
         this.scheduleService = scheduleService;
-        this.clock = clock;
     }
 
     public void generateEvents(LocalDate today, int daysAhead) {
@@ -89,28 +77,27 @@ public class EventsService {
             LocalDate date = today.plusDays(i);
             DayOfWeek dow = date.getDayOfWeek();
             allSchedules.stream().filter(s -> s.day().equals(dow)).forEach(
-                s -> addEvent(new Event(s, date))
-            );
+                    s -> addEvent(new EventInstance(s, date)));
         }
     }
 
-    public Event addEvent(Event event) {
+    public EventInstance addEvent(EventInstance event) {
         return repository.save(event);
     }
 
-    public Event removeEvent(long eventId) throws EventDoesNotExistException {
-        Optional<Event> eventToRemove = repository.findById(eventId);
+    public EventInstance removeEvent(long eventId) throws EventDoesNotExistException {
+        Optional<EventInstance> eventToRemove = repository.findById(eventId);
 
         if (eventToRemove.isEmpty())
             throw new EventDoesNotExistException();
 
-        Event removedEvent = eventToRemove.get();
+        EventInstance removedEvent = eventToRemove.get();
 
         repository.deleteById(eventId);
         return removedEvent;
     }
 
-    public List<Event> removeAllEvents() {
+    public List<EventInstance> removeAllEvents() {
         var removedEvents = repository.findAll();
 
         repository.deleteAll();
@@ -118,32 +105,18 @@ public class EventsService {
         return removedEvents;
     }
 
-    public Event updateEventCapacity(long eventId, int newCapacity) throws GymException {
-        Optional<Event> eventToUpdate = repository.findById(eventId);
+    @Transactional
+    public EventInstance signUpForEvent(long eventId, LocalDate today) throws GymException {
+        Optional<EventInstance> eventToUpdate = repository.findById(eventId);
 
         if (eventToUpdate.isEmpty())
             throw new EventDoesNotExistException();
 
-        Event updatedEvent = eventToUpdate.get();
-
-        if (newCapacity < updatedEvent.participants()) {
-            throw new EventDoesNotExistException(); // TODO nowy typ bledu
-        }
-
-        repository.setCapacityForEvent(eventId, newCapacity);
-
-        return updatedEvent;
-    }
-
-    public Event signUpForEvent(long eventId) throws GymException {
-        Optional<Event> eventToUpdate = repository.findById(eventId);
-
-        if (eventToUpdate.isEmpty())
-            throw new EventDoesNotExistException();
-
-        Event updatedEvent = eventToUpdate.get();
+        EventInstance updatedEvent = eventToUpdate.get();
 
         if (updatedEvent.participants() >= updatedEvent.capacity()) {
+            throw new EventDoesNotExistException(); // TODO nowy typ bledu
+        } else if (updatedEvent.date().isBefore(today)) {
             throw new EventDoesNotExistException(); // TODO nowy typ bledu
         }
 
@@ -152,30 +125,39 @@ public class EventsService {
         return updatedEvent;
     }
 
-    public Event moveEventInstance(long eventId, LocalDate newDate, LocalTime newTime) throws GymException {
-        Event currentEventWithId = repository.findById(eventId).orElse(null);
+    @Transactional
+    public EventInstance updateEventInstance(long eventId, EventInstanceData data) throws GymException {
+        Optional<EventInstance> eventToUpdate = repository.findById(eventId);
 
-        if (currentEventWithId == null)
+        if (eventToUpdate.isEmpty())
             throw new EventDoesNotExistException();
 
-        Event tempEvent = new Event("", newDate, newTime, currentEventWithId.duration(), -1, -1,
-                currentEventWithId.coachId());
+        EventInstance updatedEvent = eventToUpdate.get();
 
-        if (existsSimultaniousEventWithCoach(tempEvent, currentEventWithId))
+        if (data.capacity() < updatedEvent.participants()) {
+            throw new EventDoesNotExistException(); // TODO nowy typ bledu
+        }
+
+        EventInstance tempEvent = new EventInstance("", data.date(), data.time(), updatedEvent.duration(), -1, updatedEvent.clubId(),
+                updatedEvent.coachId());
+
+        if (existsSimultaniousEventWithCoach(tempEvent, updatedEvent))
             throw new EventCoachOverlapException();
         if (!clubsService.isEventInstanceInClubOpeningHours(tempEvent))
             throw new EventNotInOpeningHoursException();
 
-        repository.setDateAndTimeOfEvent(eventId, newDate, newTime);
+        repository.setDateAndTimeOfEvent(eventId, data.date(), data.time());
 
-        return currentEventWithId;
+        repository.setCapacityForEvent(eventId, data.capacity());
+
+        return updatedEvent;
     }
 
-    public List<Event> getAllEvents() {
+    public List<EventInstance> getAllEvents() {
         return repository.findAll();
     }
 
-    private boolean existsSimultaniousEventWithCoach(Event eventToAdd, Event eventToIgnore) {
+    private boolean existsSimultaniousEventWithCoach(EventInstance eventToAdd, EventInstance eventToIgnore) {
         var otherEventsWithCoach = repository.findEventByCoachId(eventToAdd.coachId());
         if (eventToIgnore != null) {
             otherEventsWithCoach = otherEventsWithCoach.stream().filter(e -> !e.equals(eventToIgnore)).toList();
@@ -212,15 +194,15 @@ public class EventsService {
         }
     }
 
-    private boolean isEventOverMidnight(Event e) {
+    private boolean isEventOverMidnight(EventInstance e) {
         return !e.time().plus(e.duration()).isAfter(e.time());
     }
 
-    private boolean isEventNotOverMidnight(Event e) {
+    private boolean isEventNotOverMidnight(EventInstance e) {
         return !isEventOverMidnight(e);
     }
 
-    private boolean isDuringEvent(Event e, LocalTime t) {
+    private boolean isDuringEvent(EventInstance e, LocalTime t) {
         return t.isAfter(e.time()) && t.isBefore(e.time().plus(e.duration()));
     }
 

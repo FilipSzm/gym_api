@@ -154,7 +154,7 @@ public class ClubsService {
         }
     }
 
-    public boolean isEventInstanceInClubOpeningHours(jwzp_ww_fs.app.models.v2.Event eventToAdd) {
+    public boolean isEventInstanceInClubOpeningHours(jwzp_ww_fs.app.models.v2.EventInstance eventToAdd) {
         LocalTime beg = eventToAdd.time();
         LocalTime end = eventToAdd.time().plus(eventToAdd.duration());
 

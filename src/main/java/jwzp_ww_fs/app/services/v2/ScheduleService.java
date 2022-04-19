@@ -183,7 +183,7 @@ public class ScheduleService {
         return removedSchedules;
     }
 
-    public Schedule updateEvent(int scheduleId, Schedule schedule) throws GymException {
+    public Schedule updateSchedule(int scheduleId, Schedule schedule) throws GymException {
         Schedule currentScheduleWithId = getSchedule(scheduleId);
         
         if (currentScheduleWithId == null) throw new EventDoesNotExistException();

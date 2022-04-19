@@ -21,9 +21,9 @@ import static javax.persistence.GenerationType.IDENTITY;
 // }
 
 @Entity
-@Table(name="eventInstances")
-@Schema(example = Event.exampleSchema)
-public class Event {
+@Table(name = "EventInstance")
+@Schema(example = EventInstance.exampleSchema)
+public class EventInstance {
     public static final String exampleSchema = """
         {\"title\": \"string\",
         \"day\": \"MONDAY\",
@@ -40,7 +40,6 @@ public class Event {
     private String title;
 
     @JsonProperty("date")
-    @Enumerated(EnumType.STRING)
     private LocalDate date;
 
     @JsonProperty("time")
@@ -52,6 +51,7 @@ public class Event {
     @JsonProperty("capacity")
     private int capacity;
 
+    @JsonProperty("participants")
     private int participants;
 
     @JsonProperty("clubId")
@@ -62,7 +62,7 @@ public class Event {
     //TODO FOREIGN KEY
     private int coachId;
 
-    public Event() {
+    public EventInstance() {
         this.title = null;
         this.date = null;
         this.time = null;
@@ -73,7 +73,7 @@ public class Event {
         this.participants = 0;
     }
 
-    public Event(String title, LocalDate date, LocalTime time, Duration duration, int capacity, int clubId, int coachId) {
+    public EventInstance(String title, LocalDate date, LocalTime time, Duration duration, int capacity, int clubId, int coachId) {
         this.title = title;
         this.date = date;
         this.time = time;
@@ -84,7 +84,7 @@ public class Event {
         this.coachId = coachId;
     }
 
-    public Event(Schedule schedule, LocalDate date) {
+    public EventInstance(Schedule schedule, LocalDate date) {
         this.title = schedule.title();
         this.date = date;
         this.time = schedule.time();
@@ -95,7 +95,7 @@ public class Event {
         this.coachId = schedule.coachId();
     }
 
-    public void updateData(Event other) {
+    public void updateData(EventInstance other) {
         this.title = other.title;
         this.date = other.date;
         this.time = other.time;
