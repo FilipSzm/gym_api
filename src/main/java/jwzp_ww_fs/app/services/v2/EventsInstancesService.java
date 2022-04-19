@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,6 +56,9 @@ import jwzp_ww_fs.app.services.CoachesService;
 
 @Service
 public class EventsInstancesService {
+    private LocalDate lastGeneratedInstancesDate = null;
+    private final int GENERATED_DAYS = 30;
+
     EventsInstancesRepository repository;
 
     ClubsService clubsService;
@@ -70,15 +74,34 @@ public class EventsInstancesService {
         this.scheduleService = scheduleService;
     }
 
-    public void generateEvents(LocalDate today, int daysAhead) {
+    @Scheduled(cron = "0 0 0 * * *")
+    public void generateEventInstances() {
+        System.out.println("Events Instasnces Generated");
+        generateEvents(LocalDate.now(), GENERATED_DAYS);
+        deleteOldEvents(LocalDate.now(), GENERATED_DAYS);
+    }
+
+    private void generateEvents(LocalDate today, int daysAhead) {
         List<Schedule> allSchedules = scheduleService.getAllSchedules();
 
         for (int i = 0; i <= daysAhead; i++) {
             LocalDate date = today.plusDays(i);
+
+            if (lastGeneratedInstancesDate != null && !lastGeneratedInstancesDate.isBefore(date)) {
+                continue;
+            }
+
+            lastGeneratedInstancesDate = date;
+
             DayOfWeek dow = date.getDayOfWeek();
             allSchedules.stream().filter(s -> s.day().equals(dow)).forEach(
                     s -> addEvent(new EventInstance(s, date)));
         }
+    }
+
+    @Transactional
+    private void deleteOldEvents(LocalDate today, int daysBackTreshold) {
+        repository.deleteEventByDateBefore(today.minusDays(daysBackTreshold));
     }
 
     public EventInstance addEvent(EventInstance event) {

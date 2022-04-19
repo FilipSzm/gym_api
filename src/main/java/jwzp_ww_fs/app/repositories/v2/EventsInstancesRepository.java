@@ -29,13 +29,16 @@ public interface EventsInstancesRepository extends JpaRepository<EventInstance, 
 
     @Modifying
     @Query(value = "update EventInstance e set e.participants = e.participants + 1 where e.id = ?1")
-    int incrementParticipantsForEvent(long eventId);
+    public int incrementParticipantsForEvent(long eventId);
 
     @Modifying
     @Query(value = "update EventInstance e set e.capacity = ?2 where e.id = ?1")
-    int setCapacityForEvent(long eventId, int capacity);
+    public int setCapacityForEvent(long eventId, int capacity);
 
     @Modifying
     @Query(value = "update EventInstance e set e.date = ?2, e.time = ?3 where e.id = ?1")
-    int setDateAndTimeOfEvent(long eventId, LocalDate date, LocalTime time);
+    public int setDateAndTimeOfEvent(long eventId, LocalDate date, LocalTime time);
+
+    @Modifying
+    public void deleteEventByDateBefore(LocalDate date);
 }

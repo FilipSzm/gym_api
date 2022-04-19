@@ -61,11 +61,6 @@ public class EventsInstanceController {
         }
     }
 
-    @PostMapping("")
-    public void test() {
-        service.generateEvents(LocalDate.now(), 14);
-    }
-
     @PostMapping("/{id}")
     public ResponseEntity<?> updateEventInstance(@PathVariable long id) {
         try {
