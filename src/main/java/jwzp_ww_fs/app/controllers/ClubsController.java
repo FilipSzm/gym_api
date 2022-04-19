@@ -28,7 +28,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping({ "/api/v1/clubs", "/api/clubs" })
+@RequestMapping({ "/api/v1/clubs", "/api/v2/clubs", "/api/clubs" })
 @Tag(name = "Clubs", description = "Clubs where coaches conduct events")
 public class ClubsController {
 

@@ -28,7 +28,7 @@ import jwzp_ww_fs.app.services.ClubsService;
 import jwzp_ww_fs.app.services.CoachesService;
 
 @Service
-public class ScheduleControler {
+public class ScheduleService {
     ScheduleRepository repository;
 
     ClubsService clubsService;
@@ -36,7 +36,7 @@ public class ScheduleControler {
 
     @Autowired
     //TODO schedule repository
-    public ScheduleControler(ScheduleRepository repository, ClubsService clubsService, CoachesService coachesService) {
+    public ScheduleService(ScheduleRepository repository, ClubsService clubsService, CoachesService coachesService) {
         this.repository = repository;
         this.clubsService = clubsService;
         this.coachesService = coachesService;

@@ -21,7 +21,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 // }
 
 @Entity
-@Table(name="events")
+@Table(name="eventInstances")
 @Schema(example = Event.exampleSchema)
 public class Event {
     public static final String exampleSchema = """
@@ -82,6 +82,17 @@ public class Event {
         this.participants = 0;
         this.clubId = clubId;
         this.coachId = coachId;
+    }
+
+    public Event(Schedule schedule, LocalDate date) {
+        this.title = schedule.title();
+        this.date = date;
+        this.time = schedule.time();
+        this.duration = schedule.duration();
+        this.capacity = schedule.capacity();
+        this.participants = 0;
+        this.clubId = schedule.clubId();
+        this.coachId = schedule.coachId();
     }
 
     public void updateData(Event other) {
