@@ -3,10 +3,11 @@ package jwzp_ww_fs.app.services;
 import jwzp_ww_fs.app.Exceptions.ClubHasEventsException;
 import jwzp_ww_fs.app.Exceptions.EventHoursInClubException;
 import jwzp_ww_fs.app.models.*;
+import jwzp_ww_fs.app.models.v1.Event;
+import jwzp_ww_fs.app.models.v2.Schedule;
 import jwzp_ww_fs.app.repositories.ClubsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ public class ClubsService {
         this.repository = repository;
     }
 
-    void setFillLevel(int clubId, Map<DayOfWeek, OpeningHours> fillLevel) {
+    public void setFillLevel(int clubId, Map<DayOfWeek, OpeningHours> fillLevel) {
         var converted = new HashMap<DayOfWeek, EventHours>();
         for (var entry : fillLevel.entrySet())
             converted.put(entry.getKey(), new EventHours(entry.getValue().from(), entry.getValue().to()));
@@ -37,13 +38,13 @@ public class ClubsService {
         repository.save(club);
     }
 
-    synchronized void addEventToClub(int clubId) {
+    public synchronized void addEventToClub(int clubId) {
         var club = repository.getById(clubId);
         club.addEvent();
         repository.save(club);
     }
 
-    synchronized void subtractEventFromClub(int clubId) {
+    public synchronized void subtractEventFromClub(int clubId) {
         var club = repository.getById(clubId);
         club.subEvent();
         repository.save(club);
@@ -108,7 +109,7 @@ public class ClubsService {
         return repository.findById(clubId).orElse(null);
     }
 
-    boolean isEventInClubOpeningHours(Event eventToAdd) {
+    public boolean isEventInClubOpeningHours(Event eventToAdd) {
         LocalTime beg = eventToAdd.time();
         LocalTime end = eventToAdd.time().plus(eventToAdd.duration());
 
@@ -119,6 +120,29 @@ public class ClubsService {
         } else {
             OpeningHours firstDay = getClub(eventToAdd.clubId()).whenOpen().get(eventToAdd.day());
             OpeningHours secondDay = getClub(eventToAdd.clubId()).whenOpen().get(eventToAdd.day().plus(1));
+
+            boolean firstDayOk, secondDayOk;
+            if (firstDay.from().equals(firstDay.to())) firstDayOk = true;
+            else firstDayOk = !firstDay.from().isAfter(beg) && firstDay.to().equals(LocalTime.MIDNIGHT);
+
+            if (secondDay.from().equals(secondDay.to())) secondDayOk = true;
+            else secondDayOk = secondDay.from().equals(LocalTime.MIDNIGHT) && !secondDay.to().isBefore(end);
+
+            return firstDayOk && secondDayOk;
+        }
+    }
+
+    public boolean isScheduleInClubOpeningHours(Schedule scheduleToAdd) {
+        LocalTime beg = scheduleToAdd.time();
+        LocalTime end = scheduleToAdd.time().plus(scheduleToAdd.duration());
+
+        if (beg.isBefore(end)) {
+            OpeningHours openingHours = getClub(scheduleToAdd.clubId()).whenOpen().get(scheduleToAdd.day());
+            if (openingHours.from().equals(openingHours.to())) return true;
+            return !openingHours.from().isAfter(beg) && ((!openingHours.to().isBefore(end)) || (openingHours.to().equals(LocalTime.MIDNIGHT)));
+        } else {
+            OpeningHours firstDay = getClub(scheduleToAdd.clubId()).whenOpen().get(scheduleToAdd.day());
+            OpeningHours secondDay = getClub(scheduleToAdd.clubId()).whenOpen().get(scheduleToAdd.day().plus(1));
 
             boolean firstDayOk, secondDayOk;
             if (firstDay.from().equals(firstDay.to())) firstDayOk = true;

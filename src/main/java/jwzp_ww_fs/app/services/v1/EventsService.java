@@ -1,4 +1,4 @@
-package jwzp_ww_fs.app.services;
+package jwzp_ww_fs.app.services.v1;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -24,6 +24,8 @@ import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.OpeningHours;
 import jwzp_ww_fs.app.models.v1.Event;
 import jwzp_ww_fs.app.repositories.v1.EventsRepository;
+import jwzp_ww_fs.app.services.ClubsService;
+import jwzp_ww_fs.app.services.CoachesService;
 
 @Service
 public class EventsService {

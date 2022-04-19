@@ -2,7 +2,6 @@ package jwzp_ww_fs.app.services;
 
 import jwzp_ww_fs.app.Exceptions.ClubHasEventsException;
 import jwzp_ww_fs.app.Exceptions.CoachHasEventsException;
-import jwzp_ww_fs.app.models.Club;
 import jwzp_ww_fs.app.models.Coach;
 import jwzp_ww_fs.app.repositories.CoachRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,19 +19,19 @@ public class CoachesService {
         this.repository = repository;
     }
 
-    synchronized void addEventForCoach(int coachId) {
+    public synchronized void addEventForCoach(int coachId) {
         Coach coach = repository.getById(coachId);
         coach.addEvent();
         repository.save(coach);
     }
 
-    synchronized void subtractEventFromCoach(int coachId) {
+    public synchronized void subtractEventFromCoach(int coachId) {
         Coach coach = repository.getById(coachId);
         coach.subEvent();
         repository.save(coach);
     }
 
-    synchronized void deleteAllEvents() {
+    public synchronized void deleteAllEvents() {
         List<Coach> coaches = repository.findAll();
         for (var coach : coaches) {
             coach.deleteEvents();

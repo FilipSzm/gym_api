@@ -1,7 +1,7 @@
-package jwzp_ww_fs.app.models;
+package jwzp_ww_fs.app.models.v2;
 
-import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 import javax.persistence.Entity;
@@ -34,20 +34,25 @@ public class Event {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    private int id;
+    private long id;
 
     @JsonProperty("title")
     private String title;
 
-    @JsonProperty("day")
+    @JsonProperty("date")
     @Enumerated(EnumType.STRING)
-    private DayOfWeek day;
+    private LocalDate date;
 
     @JsonProperty("time")
     private LocalTime time;
 
     @JsonProperty("duration")
     private Duration duration;
+
+    @JsonProperty("capacity")
+    private int capacity;
+
+    private int participants;
 
     @JsonProperty("clubId")
     //TODO FOREIGN KEY
@@ -59,27 +64,33 @@ public class Event {
 
     public Event() {
         this.title = null;
-        this.day = null;
+        this.date = null;
         this.time = null;
         this.duration = null;
+        this.capacity = -1;
         this.clubId = -1;
         this.coachId = -1;
+        this.participants = 0;
     }
 
-    public Event(String title, DayOfWeek day, LocalTime time, Duration duration, int clubId, int coachId) {
+    public Event(String title, LocalDate date, LocalTime time, Duration duration, int capacity, int clubId, int coachId) {
         this.title = title;
-        this.day = day;
+        this.date = date;
         this.time = time;
         this.duration = duration;
+        this.capacity = capacity;
+        this.participants = 0;
         this.clubId = clubId;
         this.coachId = coachId;
     }
 
     public void updateData(Event other) {
         this.title = other.title;
-        this.day = other.day;
+        this.date = other.date;
         this.time = other.time;
         this.duration = other.duration;
+        this.capacity = other.capacity;
+        this.participants = other.participants;
         this.clubId = other.clubId;
         this.coachId = other.coachId;
     }
@@ -88,8 +99,8 @@ public class Event {
         return title;
     }
 
-    public DayOfWeek day() {
-        return day;
+    public LocalDate date() {
+        return date;
     }
 
     public LocalTime time() {
@@ -98,6 +109,14 @@ public class Event {
 
     public Duration duration() {
         return duration;
+    }
+
+    public int capacity() {
+        return capacity;
+    }
+
+    public int participants() {
+        return participants;
     }
 
     public int coachId() {
