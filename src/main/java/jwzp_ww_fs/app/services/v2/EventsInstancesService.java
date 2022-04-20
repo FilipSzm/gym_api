@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,7 +68,8 @@ public class EventsInstancesService {
     ScheduleService scheduleService;
 
     @Autowired
-    public EventsInstancesService(EventsInstancesRepository repository, ClubsService clubsService, CoachesService coachesService,
+    public EventsInstancesService(EventsInstancesRepository repository, ClubsService clubsService,
+            CoachesService coachesService,
             ScheduleService scheduleService) {
         this.repository = repository;
         this.clubsService = clubsService;
@@ -75,8 +78,8 @@ public class EventsInstancesService {
     }
 
     @Scheduled(cron = "0 0 0 * * *")
+    @Transactional
     public void generateEventInstances() {
-        System.out.println("Events Instasnces Generated");
         generateEvents(LocalDate.now(), GENERATED_DAYS);
         deleteOldEvents(LocalDate.now(), GENERATED_DAYS);
     }
@@ -99,7 +102,6 @@ public class EventsInstancesService {
         }
     }
 
-    @Transactional
     private void deleteOldEvents(LocalDate today, int daysBackTreshold) {
         repository.deleteEventByDateBefore(today.minusDays(daysBackTreshold));
     }
@@ -161,7 +163,8 @@ public class EventsInstancesService {
             throw new EventDoesNotExistException(); // TODO nowy typ bledu
         }
 
-        EventInstance tempEvent = new EventInstance("", data.date(), data.time(), updatedEvent.duration(), -1, updatedEvent.clubId(),
+        EventInstance tempEvent = new EventInstance("", data.date(), data.time(), updatedEvent.duration(), -1,
+                updatedEvent.clubId(),
                 updatedEvent.coachId());
 
         if (existsSimultaniousEventWithCoach(tempEvent, updatedEvent))
@@ -176,8 +179,19 @@ public class EventsInstancesService {
         return updatedEvent;
     }
 
-    public List<EventInstance> getAllEvents() {
-        return repository.findAll();
+    public EventInstance getEventInstanceWithId(long id) {
+        return repository.findById(id).orElse(null);
+    }
+
+    public Page<EventInstance> getEventsByParams(Pageable p, Optional<LocalDate> date, Optional<Integer> clubId) {
+        if (date.isEmpty() && clubId.isEmpty())
+            return repository.findAll(p);
+        else if (date.isEmpty())
+            return repository.findEventByClubId(p, clubId.get());
+        else if (clubId.isEmpty())
+            return repository.findEventByDate(p, date.get());
+        else
+            return repository.findEventByClubIdAndDate(p, clubId.get(), date.get());
     }
 
     private boolean existsSimultaniousEventWithCoach(EventInstance eventToAdd, EventInstance eventToIgnore) {

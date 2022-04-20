@@ -9,6 +9,7 @@ import javax.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,8 +49,13 @@ public class EventsInstanceController {
     }
 
     @GetMapping("")
-    public List<EventInstance> getAllEventInstances() {
-        return service.getAllEvents();
+    public Page<EventInstance> getAllEventInstances(Pageable p, @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Optional<LocalDate> date, @RequestParam Optional<Integer> clubId) {
+        return service.getEventsByParams(p, date, clubId);
+    }
+
+    @GetMapping("/{id}")
+    public EventInstance getAllEventInstances(@PathVariable long id) {
+        return service.getEventInstanceWithId(id);
     }
 
     @PatchMapping("/{id}")

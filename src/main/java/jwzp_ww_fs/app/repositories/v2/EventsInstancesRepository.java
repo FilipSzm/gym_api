@@ -23,9 +23,9 @@ public interface EventsInstancesRepository extends JpaRepository<EventInstance, 
 
     public Page<EventInstance> findEventByClubId(Pageable p, int coachId);
 
-    public List<EventInstance> findEventByDate(Pageable p, LocalDate date);
+    public Page<EventInstance> findEventByDate(Pageable p, LocalDate date);
 
-    public List<EventInstance> findEventByClubIdAndDate(Pageable p, int clubId, LocalDate date);
+    public Page<EventInstance> findEventByClubIdAndDate(Pageable p, int clubId, LocalDate date);
 
     @Modifying
     @Query(value = "update EventInstance e set e.participants = e.participants + 1 where e.id = ?1")
