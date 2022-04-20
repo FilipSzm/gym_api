@@ -28,7 +28,7 @@ import jwzp_ww_fs.app.Exceptions.EventDoesNotExistException;
 import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.ExceptionInfo;
 import jwzp_ww_fs.app.models.v1.Event;
-import jwzp_ww_fs.app.services.EventsService;
+import jwzp_ww_fs.app.services.v1.EventsService;
 
 @RestController
 @RequestMapping({ "/api/v1/events" })
