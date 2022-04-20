@@ -25,6 +25,7 @@ public class Schedule {
         {\"title\": \"string\",
         \"day\": \"MONDAY\",
         \"time\": \"00:00\",
+        \"capacity\": 0,
         \"duration\": \"PT10M\",
         \"coachId\": 0,
         \"clubId\": 0}""";

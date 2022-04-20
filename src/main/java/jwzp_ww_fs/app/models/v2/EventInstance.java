@@ -5,8 +5,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -28,6 +26,8 @@ public class EventInstance {
         {\"title\": \"string\",
         \"day\": \"MONDAY\",
         \"time\": \"00:00\",
+        \"capacity\": 0,
+        \"participants\": 0,
         \"duration\": \"PT10M\",
         \"coachId\": 0,
         \"clubId\": 0}""";

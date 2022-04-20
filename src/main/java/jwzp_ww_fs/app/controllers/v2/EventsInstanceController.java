@@ -48,8 +48,14 @@ public class EventsInstanceController {
         this.service = service;
     }
 
+    @ApiResponses(value = {
+    @ApiResponse(content = {
+    @Content(mediaType = "application/json", array = @ArraySchema(schema =
+    @Schema(implementation = EventInstance.class)))
+    }, responseCode = "200", description = "Correctly returned all events")
+    })
     @GetMapping("")
-    public Page<EventInstance> getAllEventInstances(Pageable p, @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Optional<LocalDate> date, @RequestParam Optional<Integer> clubId) {
+    public Page<EventInstance> getAllEventInstances(@Parameter(required = false, description = "How to divide return data into pages") Pageable p, @Parameter(required = false, description = "Date in the format yyyy-mm-dd to search by") @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Optional<LocalDate> date, @Parameter(required = false, description = "ID of club to narrow search") @RequestParam Optional<Integer> clubId) {
         return service.getEventsByParams(p, date, clubId);
     }
 
