@@ -104,6 +104,10 @@ public class ClubsService {
         return repository.findAll();
     }
 
+    public Page<Club> getAllClubs(Pageable p) {
+        return repository.findAll(p);
+    }
+
     public Club getClub(int clubId) {
         return repository.findById(clubId).orElse(null);
     }
