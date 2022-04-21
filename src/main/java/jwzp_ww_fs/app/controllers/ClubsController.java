@@ -50,30 +50,11 @@ public class ClubsController {
     })
     @GetMapping("")
     public ResponseEntity<?> getAllClubs(@Parameter(description = "data for paging") Pageable p) {
-
         if (p.equals(defaultValues.defaultPageable))
             return new ResponseEntity<>(service.getAllClubs(), HttpStatus.OK);
 
         return new ResponseEntity<>(service.getAllClubs(p), HttpStatus.OK);
     }
-
-
-//    @ApiResponses(value = {
-//            @ApiResponse(content = {
-//                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Page.class)))
-//            }, responseCode = "200", description = "Correctly return page of coaches")
-//    })
-//    @GetMapping("/page")
-//    public ResponseEntity<?> getAll(@Parameter(required = false, description = "data for paging") Pageable p) {
-//
-//        System.out.println(p.toString());
-//
-//
-//        if (p.equals(defaultValues.defaultPageable))
-//            return new ResponseEntity<>(service.getAllClubs(), HttpStatus.OK);
-//
-//        return new ResponseEntity<>(service.getPage(p), HttpStatus.OK);
-//    }
 
     @ApiResponses(value = {
             @ApiResponse(content = {

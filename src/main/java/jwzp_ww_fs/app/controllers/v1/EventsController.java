@@ -3,9 +3,11 @@ package jwzp_ww_fs.app.controllers.v1;
 import java.util.List;
 import java.util.Optional;
 
+import jwzp_ww_fs.app.models.DefaultValues;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,31 +37,16 @@ import jwzp_ww_fs.app.services.v1.EventsService;
 @Tag(name = "Events", description = "events that are organized in clubs by coaches")
 public class EventsController {
 
-    private EventsService service;
+    private final DefaultValues defaultValues;
+    private final EventsService service;
 
     @Autowired
-    public EventsController(EventsService service) {
+    public EventsController(EventsService service, DefaultValues defaultValues) {
         this.service = service;
+        this.defaultValues = defaultValues;
     }
 
-    @ApiResponses(value = {
-            @ApiResponse(content = {
-                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Event.class)))
-            }, responseCode = "200", description = "Correctly returned all events")
-    })
-    @GetMapping("")
-    public List<Event> getEventWithCoachAndClub(
-            @Parameter(required = false, description = "ID of coach to narrow search") @RequestParam Optional<Integer> coachId,
-            @Parameter(required = false, description = "ID of club to narrow search") @RequestParam Optional<Integer> clubId) {
 
-        if (coachId.isEmpty() && clubId.isEmpty())
-            return service.getAllEvents();
-        else if (coachId.isEmpty() && clubId.isPresent())
-            return service.getEventsByClub(clubId.get());
-        else if (coachId.isPresent() && clubId.isEmpty())
-            return service.getEventsByCoach(coachId.get());
-        return service.getEventsByCoachAndClub(coachId.get(), clubId.get());
-    }
 
     @ApiResponses(value = {
             @ApiResponse(content = {
@@ -134,16 +121,22 @@ public class EventsController {
         }
     }
 
+
     @ApiResponses(value = {
             @ApiResponse(content = {
-                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Page.class)))
-            }, responseCode = "200", description = "Correctly return page of coaches")
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Event.class)))
+            }, responseCode = "200", description = "Correctly returned events")
     })
-    @GetMapping("/page")
-    public Page<Event> getEventsPaged(
-            @Parameter(required = false, description = "ID of coach to narrow search") @RequestParam Optional<Integer> coachId,
-            @Parameter(required = false, description = "ID of club to narrow search") @RequestParam Optional<Integer> clubId,
-            @Parameter(required = false, description = "data for paging") Pageable p) {
-        return service.getPage(p, clubId, coachId);
+    @GetMapping("")
+    public ResponseEntity<?> getEventsPaged(
+            @Parameter(description = "ID of coach to narrow search") @RequestParam Optional<Integer> coachId,
+            @Parameter(description = "ID of club to narrow search") @RequestParam Optional<Integer> clubId,
+            @Parameter(description = "data for paging") Pageable p) {
+        var out = service.getPage(p, clubId, coachId);
+
+        if (p.equals(defaultValues.defaultPageable))
+            return new ResponseEntity<>(out.getContent(), HttpStatus.OK);
+
+        return new ResponseEntity<>(out, HttpStatus.OK);
     }
 }

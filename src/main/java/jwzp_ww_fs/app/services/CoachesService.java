@@ -73,6 +73,10 @@ public class CoachesService {
         return repository.findAll();
     }
 
+    public Page<Coach> getAllCoaches(Pageable p) {
+        return repository.findAll(p);
+    }
+
     public Coach getCoach(int coachId) {
         return repository.findById(coachId).orElse(null);
     }
