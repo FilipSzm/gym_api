@@ -3,12 +3,14 @@ package jwzp_ww_fs.app.controllers;
 import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.dto.ClubRepresentation;
 import jwzp_ww_fs.app.models.Club;
+import jwzp_ww_fs.app.models.DefaultValues;
 import jwzp_ww_fs.app.models.ExceptionInfo;
 import jwzp_ww_fs.app.services.ClubsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.Link;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,21 +34,26 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Tag(name = "Clubs", description = "Clubs where coaches conduct events")
 public class ClubsController {
 
+    private final DefaultValues defaultValues;
     private final ClubsService service;
 
     @Autowired
-    public ClubsController(ClubsService service) {
+    public ClubsController(ClubsService service, DefaultValues defaultValues) {
         this.service = service;
+        this.defaultValues = defaultValues;
     }
 
     @ApiResponses(value = {
             @ApiResponse(content = {
                     @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Club.class)))
-            }, responseCode = "200", description = "Correctly returned all clubs")
+            }, responseCode = "200", description = "Correctly returned clubs")
     })
     @GetMapping("")
-    public List<Club> getAllClubs() {
-        return service.getAllClubs();
+    public ResponseEntity<?> getAllClubs(@Parameter(description = "data for paging") Pageable p) {
+        if (p.equals(defaultValues.defaultPageable))
+            return new ResponseEntity<>(service.getAllClubs(), HttpStatus.OK);
+
+        return new ResponseEntity<>(service.getAllClubs(p), HttpStatus.OK);
     }
 
     @ApiResponses(value = {
@@ -146,15 +153,5 @@ public class ClubsController {
         var representation = ClubRepresentation.fromClub(club);
         representation.add(selfLink);
         return representation;
-    }
-
-    @ApiResponses(value = {
-            @ApiResponse(content = {
-                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Page.class)))
-            }, responseCode = "200", description = "Correctly return page of coaches")
-    })
-    @GetMapping("/page")
-    public Page<Club> getAll(@Parameter(required = false, description = "data for paging") Pageable p) {
-        return service.getPage(p);
     }
 }

@@ -6,10 +6,12 @@ import java.util.Optional;
 
 import javax.websocket.server.PathParam;
 
+import jwzp_ww_fs.app.models.DefaultValues;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,11 +43,14 @@ import jwzp_ww_fs.app.services.v2.EventsInstancesService;
 @Tag(name = "Events", description = "events that are organized in clubs by coaches")
 public class EventsInstanceController {
 
-    private EventsInstancesService service;
+    private final EventsInstancesService service;
+
+    private final DefaultValues defaultValues;
 
     @Autowired
-    public EventsInstanceController(EventsInstancesService service) {
+    public EventsInstanceController(EventsInstancesService service, DefaultValues defaultValues) {
         this.service = service;
+        this.defaultValues = defaultValues;
     }
 
     @ApiResponses(value = {
@@ -55,8 +60,17 @@ public class EventsInstanceController {
     }, responseCode = "200", description = "Correctly returned all events")
     })
     @GetMapping("")
-    public Page<EventInstance> getAllEventInstances(@Parameter(required = false, description = "How to divide return data into pages") Pageable p, @Parameter(required = false, description = "Date in the format yyyy-mm-dd to search by") @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Optional<LocalDate> date, @Parameter(required = false, description = "ID of club to narrow search") @RequestParam Optional<Integer> clubId) {
-        return service.getEventsByParams(p, date, clubId);
+    public ResponseEntity<?> getAllEventInstances(@Parameter(description = "How to divide return data into pages") Pageable p,
+                                                  @Parameter(description = "Date in the format yyyy-mm-dd to search by")
+                                                      @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Optional<LocalDate> date,
+                                                  @Parameter(description = "ID of club to narrow search")
+                                                      @RequestParam Optional<Integer> clubId) {
+        var out = service.getEventsByParams(p, date, clubId);
+
+        if (p.equals(defaultValues.defaultPageable))
+            return new ResponseEntity<>(out.getContent(), HttpStatus.OK);
+
+        return new ResponseEntity<>(out, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

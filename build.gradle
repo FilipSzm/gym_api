@@ -44,6 +44,9 @@ dependencies {
 	// lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+//	flyway
+	//implementation 'org.flywaydb:flyway-core:8.5.7'
 }
 
 tasks.named('test') {

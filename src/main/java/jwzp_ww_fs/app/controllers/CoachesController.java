@@ -3,11 +3,13 @@ package jwzp_ww_fs.app.controllers;
 import jwzp_ww_fs.app.Exceptions.ClubHasEventsException;
 import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.Coach;
+import jwzp_ww_fs.app.models.DefaultValues;
 import jwzp_ww_fs.app.models.ExceptionInfo;
 import jwzp_ww_fs.app.services.CoachesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,20 +30,25 @@ import java.util.List;
 public class CoachesController {
 
     private final CoachesService service;
+    private final DefaultValues defaultValues;
 
     @Autowired
-    public CoachesController(CoachesService service) {
+    public CoachesController(CoachesService service, DefaultValues defaultValues) {
         this.service = service;
+        this.defaultValues = defaultValues;
     }
 
     @ApiResponses(value = {
             @ApiResponse(content = {
                     @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Coach.class)))
-            }, responseCode = "200", description = "Correctly returned all coaches")
+            }, responseCode = "200", description = "Correctly returned coaches")
     })
     @GetMapping("")
-    public List<Coach> getAllCoaches() {
-        return service.getAllCoaches();
+    public ResponseEntity<?> getAllCoaches(@Parameter(description = "data for paging") Pageable p) {
+        if (p.equals(defaultValues.defaultPageable))
+            return new ResponseEntity<>(service.getAllCoaches(), HttpStatus.OK);
+
+        return new ResponseEntity<>(service.getAllCoaches(p), HttpStatus.OK);
     }
 
     @ApiResponses(value = {
@@ -123,15 +130,5 @@ public class CoachesController {
         if (pached == null)
             return ResponseEntity.badRequest().body("Could not update coach with that ID");
         return ResponseEntity.ok().body(pached);
-    }
-
-    @ApiResponses(value = {
-            @ApiResponse(content = {
-                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Page.class)))
-            }, responseCode = "200", description = "Correctly return page of coaches")
-    })
-    @GetMapping("/page")
-    public Page<Coach> getAll(@Parameter(required = false, description = "data for paging") Pageable p) {
-        return service.getPage(p);
     }
 }
