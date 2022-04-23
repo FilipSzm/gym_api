@@ -1,4 +1,4 @@
-package jwzp_ww_fs.app.models.v2;
+package jwzp_ww_fs.app.models;
 
 import java.time.DayOfWeek;
 import java.time.Duration;

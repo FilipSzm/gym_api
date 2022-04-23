@@ -1,4 +1,4 @@
-package jwzp_ww_fs.app.services.v2;
+package jwzp_ww_fs.app.services;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -22,8 +22,8 @@ import jwzp_ww_fs.app.Exceptions.EventNotInOpeningHoursException;
 import jwzp_ww_fs.app.Exceptions.EventTooLongException;
 import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.OpeningHours;
-import jwzp_ww_fs.app.models.v2.Schedule;
-import jwzp_ww_fs.app.repositories.v2.ScheduleRepository;
+import jwzp_ww_fs.app.models.Schedule;
+import jwzp_ww_fs.app.repositories.ScheduleRepository;
 import jwzp_ww_fs.app.services.ClubsService;
 import jwzp_ww_fs.app.services.CoachesService;
 

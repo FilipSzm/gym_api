@@ -1,14 +1,11 @@
-package jwzp_ww_fs.app.controllers.v2;
+package jwzp_ww_fs.app.controllers;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import javax.websocket.server.PathParam;
-
-import jwzp_ww_fs.app.models.DefaultValues;
+import jwzp_ww_fs.app.util.DefaultValues;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -25,21 +22,17 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jwzp_ww_fs.app.Exceptions.EventDoesNotExistException;
 import jwzp_ww_fs.app.Exceptions.GymException;
-import jwzp_ww_fs.app.models.ExceptionInfo;
-import jwzp_ww_fs.app.models.v2.EventInstance;
-import jwzp_ww_fs.app.models.v2.EventInstanceData;
-import jwzp_ww_fs.app.services.v2.EventsInstancesService;
+import jwzp_ww_fs.app.models.EventInstance;
+import jwzp_ww_fs.app.models.EventInstanceData;
+import jwzp_ww_fs.app.services.EventsInstancesService;
 
 @RestController
-@RequestMapping({ "/api/v2/events", "/api/events" })
+@RequestMapping({ "/api/v1/events", "/api/events" })
 @Tag(name = "Events", description = "events that are organized in clubs by coaches")
 public class EventsInstanceController {
 

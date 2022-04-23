@@ -1,9 +1,9 @@
-package jwzp_ww_fs.app.controllers.v2;
+package jwzp_ww_fs.app.controllers;
 
 import java.util.List;
 import java.util.Optional;
 
-import jwzp_ww_fs.app.models.DefaultValues;
+import jwzp_ww_fs.app.util.DefaultValues;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,11 +29,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jwzp_ww_fs.app.Exceptions.EventDoesNotExistException;
 import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.ExceptionInfo;
-import jwzp_ww_fs.app.models.v2.Schedule;
-import jwzp_ww_fs.app.services.v2.ScheduleService;
+import jwzp_ww_fs.app.models.Schedule;
+import jwzp_ww_fs.app.services.ScheduleService;
 
 @RestController
-@RequestMapping({ "/api/v2/schedule", "api/schedule" })
+@RequestMapping({ "/api/v1/schedule", "api/schedule" })
 @Tag(name = "Schedules", description = "schedules that are organized in clubs by coaches")
 public class ScheduleControler {
 

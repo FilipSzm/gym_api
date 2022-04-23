@@ -1,4 +1,4 @@
-package jwzp_ww_fs.app.models;
+package jwzp_ww_fs.app.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
