@@ -1,4 +1,4 @@
-package jwzp_ww_fs.app.repositories.v2;
+package jwzp_ww_fs.app.repositories;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import jwzp_ww_fs.app.models.v2.EventInstance;
+import jwzp_ww_fs.app.models.EventInstance;
 
 public interface EventsInstancesRepository extends JpaRepository<EventInstance, Long> {
     public List<EventInstance> findEventByClubId(int clubId);

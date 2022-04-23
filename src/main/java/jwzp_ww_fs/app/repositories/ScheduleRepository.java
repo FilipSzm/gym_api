@@ -1,4 +1,4 @@
-package jwzp_ww_fs.app.repositories.v2;
+package jwzp_ww_fs.app.repositories;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import jwzp_ww_fs.app.models.v2.Schedule;
+import jwzp_ww_fs.app.models.Schedule;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
     public List<Schedule> findScheduleByCoachId(int coachId);

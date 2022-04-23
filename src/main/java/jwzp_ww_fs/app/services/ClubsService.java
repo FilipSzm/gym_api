@@ -3,7 +3,7 @@ package jwzp_ww_fs.app.services;
 import jwzp_ww_fs.app.Exceptions.ClubHasEventsException;
 import jwzp_ww_fs.app.Exceptions.EventHoursInClubException;
 import jwzp_ww_fs.app.models.*;
-import jwzp_ww_fs.app.models.v2.Schedule;
+import jwzp_ww_fs.app.models.Schedule;
 import jwzp_ww_fs.app.repositories.ClubsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -112,28 +112,7 @@ public class ClubsService {
         return repository.findById(clubId).orElse(null);
     }
 
-    public boolean isEventInClubOpeningHours(jwzp_ww_fs.app.models.v1.Event eventToAdd) {
-        LocalTime beg = eventToAdd.time();
-        LocalTime end = eventToAdd.time().plus(eventToAdd.duration());
 
-        if (beg.isBefore(end)) {
-            OpeningHours openingHours = getClub(eventToAdd.clubId()).whenOpen().get(eventToAdd.day());
-            if (openingHours.from().equals(openingHours.to())) return true;
-            return !openingHours.from().isAfter(beg) && ((!openingHours.to().isBefore(end)) || (openingHours.to().equals(LocalTime.MIDNIGHT)));
-        } else {
-            OpeningHours firstDay = getClub(eventToAdd.clubId()).whenOpen().get(eventToAdd.day());
-            OpeningHours secondDay = getClub(eventToAdd.clubId()).whenOpen().get(eventToAdd.day().plus(1));
-
-            boolean firstDayOk, secondDayOk;
-            if (firstDay.from().equals(firstDay.to())) firstDayOk = true;
-            else firstDayOk = !firstDay.from().isAfter(beg) && firstDay.to().equals(LocalTime.MIDNIGHT);
-
-            if (secondDay.from().equals(secondDay.to())) secondDayOk = true;
-            else secondDayOk = secondDay.from().equals(LocalTime.MIDNIGHT) && !secondDay.to().isBefore(end);
-
-            return firstDayOk && secondDayOk;
-        }
-    }
 
     public boolean isScheduleInClubOpeningHours(Schedule scheduleToAdd) {
         LocalTime beg = scheduleToAdd.time();
@@ -158,7 +137,7 @@ public class ClubsService {
         }
     }
 
-    public boolean isEventInstanceInClubOpeningHours(jwzp_ww_fs.app.models.v2.EventInstance eventToAdd) {
+    public boolean isEventInstanceInClubOpeningHours(EventInstance eventToAdd) {
         LocalTime beg = eventToAdd.time();
         LocalTime end = eventToAdd.time().plus(eventToAdd.duration());
 

@@ -1,4 +1,4 @@
-package jwzp_ww_fs.app.services.v2;
+package jwzp_ww_fs.app.services;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -17,12 +17,10 @@ import jwzp_ww_fs.app.Exceptions.EventCoachOverlapException;
 import jwzp_ww_fs.app.Exceptions.EventDoesNotExistException;
 import jwzp_ww_fs.app.Exceptions.EventNotInOpeningHoursException;
 import jwzp_ww_fs.app.Exceptions.GymException;
-import jwzp_ww_fs.app.models.v2.EventInstance;
-import jwzp_ww_fs.app.models.v2.EventInstanceData;
-import jwzp_ww_fs.app.models.v2.Schedule;
-import jwzp_ww_fs.app.repositories.v2.EventsInstancesRepository;
-import jwzp_ww_fs.app.services.ClubsService;
-import jwzp_ww_fs.app.services.CoachesService;
+import jwzp_ww_fs.app.models.EventInstance;
+import jwzp_ww_fs.app.models.EventInstanceData;
+import jwzp_ww_fs.app.models.Schedule;
+import jwzp_ww_fs.app.repositories.EventsInstancesRepository;
 
 // public List<Event> getAllEvents() {
 //     return repository.findAll();

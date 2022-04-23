@@ -3,11 +3,10 @@ package jwzp_ww_fs.app.controllers;
 import jwzp_ww_fs.app.Exceptions.ClubHasEventsException;
 import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.Coach;
-import jwzp_ww_fs.app.models.DefaultValues;
+import jwzp_ww_fs.app.util.DefaultValues;
 import jwzp_ww_fs.app.models.ExceptionInfo;
 import jwzp_ww_fs.app.services.CoachesService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +20,6 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import java.util.List;
 
 @RestController
 @RequestMapping({"/api/v1/coaches", "/api/v2/coaches", "api/coaches"})
