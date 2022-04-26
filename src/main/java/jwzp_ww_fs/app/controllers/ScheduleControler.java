@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import jwzp_ww_fs.app.util.DefaultValues;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,13 +43,13 @@ public class ScheduleControler {
     private final ScheduleService service;
     private final DefaultValues defaultValues;
 
+    Logger logger = LoggerFactory.getLogger(ScheduleControler.class);
+
     @Autowired
     public ScheduleControler(ScheduleService service, DefaultValues defaultValues) {
         this.service = service;
         this.defaultValues = defaultValues;
     }
-
-
 
     @ApiResponses(value = {
             @ApiResponse(content = {
@@ -58,8 +61,10 @@ public class ScheduleControler {
             @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Information about schedule to add", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Schedule.class))) @org.springframework.web.bind.annotation.RequestBody Schedule schedule) {
         try {
             service.addSchedule(schedule);
+            logger.info("Added new item to schedule");
             return ResponseEntity.ok().body(schedule);
         } catch (GymException ex) {
+            logger.info("Could not add new item to schedule");
             return ResponseEntity.badRequest().body(ex.getErrorInfo());
         }
     }
@@ -70,6 +75,7 @@ public class ScheduleControler {
             }) })
     @DeleteMapping("")
     public List<Schedule> removeAllSchedules() {
+        logger.info("Deleted all items from schedule");
         return service.removeAllSchedules();
     }
 
@@ -81,6 +87,7 @@ public class ScheduleControler {
     @GetMapping("/{id}")
     public Schedule getSchedule(
             @Parameter(required = true, description = "ID of schedule to get", in = ParameterIn.PATH) @PathVariable int id) {
+        logger.info("Returned schedule item with id {}", id);
         return service.getSchedule(id);
     }
 
@@ -96,8 +103,11 @@ public class ScheduleControler {
     public ResponseEntity<?> deleteSchedule(
             @Parameter(required = true, description = "ID of schedule to delete") @PathVariable int id) {
         try {
-            return ResponseEntity.ok().body(service.removeSchedule(id));
+            var removed = service.removeSchedule(id);
+            logger.info("Deleted schedule item with id {}", id);
+            return ResponseEntity.ok().body(removed);
         } catch (EventDoesNotExistException ex) {
+            logger.info("Could not delete schedule item with id {}", id);
             return ResponseEntity.badRequest().body(ex.getErrorInfo());
         }
     }
@@ -115,13 +125,14 @@ public class ScheduleControler {
             @Parameter(required = true, description = "ID of schedule to update") @PathVariable int id,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Information about coach to add", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Schedule.class))) @org.springframework.web.bind.annotation.RequestBody Schedule schedule) {
         try {
-            return ResponseEntity.ok().body(service.updateSchedule(id, schedule));
+            var patched = service.updateSchedule(id, schedule);
+            logger.info("Updated event with id {}", id);
+            return ResponseEntity.ok().body(patched);
         } catch (GymException ex) {
+            logger.info("Could not update event with id {}", id);
             return ResponseEntity.badRequest().body(ex.getErrorInfo());
         }
     }
-
-
 
     @ApiResponses(value = {
             @ApiResponse(content = {
@@ -135,9 +146,14 @@ public class ScheduleControler {
             @Parameter(description = "data for paging") Pageable p) {
         var out = service.getPage(p, clubId, coachId);
 
-        if (p.equals(defaultValues.defaultPageable))
+        if (p.equals(defaultValues.defaultPageable)) {
+            logger.info("Returned list of all schedule items with clubId {} and coachId {} (no paging)",
+                    clubId.orElse(-1), coachId.orElse(-1));
             return new ResponseEntity<>(out.getContent(), HttpStatus.OK);
+        }
 
+        logger.info("Returned list of all schedule items with clubId {} and coachId {} (paging)", clubId.orElse(-1),
+                coachId.orElse(-1));
         return new ResponseEntity<>(out, HttpStatus.OK);
     }
 }

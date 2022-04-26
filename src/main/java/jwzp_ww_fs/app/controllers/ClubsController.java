@@ -6,6 +6,9 @@ import jwzp_ww_fs.app.models.Club;
 import jwzp_ww_fs.app.util.DefaultValues;
 import jwzp_ww_fs.app.models.ExceptionInfo;
 import jwzp_ww_fs.app.services.ClubsService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.Link;
@@ -36,6 +39,8 @@ public class ClubsController {
     private final DefaultValues defaultValues;
     private final ClubsService service;
 
+    Logger logger = LoggerFactory.getLogger(ClubsController.class);
+
     @Autowired
     public ClubsController(ClubsService service, DefaultValues defaultValues) {
         this.service = service;
@@ -49,9 +54,12 @@ public class ClubsController {
     })
     @GetMapping("")
     public ResponseEntity<?> getAllClubs(@Parameter(description = "data for paging") Pageable p) {
-        if (p.equals(defaultValues.defaultPageable))
+        if (p.equals(defaultValues.defaultPageable)) {
+            logger.info("Returned list of all clubs (no paging)");
             return new ResponseEntity<>(service.getAllClubs(), HttpStatus.OK);
+        }
 
+        logger.info("Returned list of all clubs (paging)");
         return new ResponseEntity<>(service.getAllClubs(p), HttpStatus.OK);
     }
 
@@ -63,6 +71,7 @@ public class ClubsController {
     @GetMapping("/{clubId}")
     public Club getClub(
             @Parameter(required = true, description = "ID of club to get", in = ParameterIn.PATH) @PathVariable int clubId) {
+        logger.info("Returned club with id {}", clubId);
         return service.getClub(clubId);
     }
 
@@ -74,6 +83,7 @@ public class ClubsController {
     @PostMapping("")
     public Club addClub(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Information about club to add", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Club.class))) @org.springframework.web.bind.annotation.RequestBody Club club) {
+        logger.info("Adding new club to database");
         return service.addClub(club);
     }
 
@@ -91,12 +101,14 @@ public class ClubsController {
         Club removed;
         try {
             removed = service.removeClub(clubId);
+            logger.info("Deleted club with id {}", clubId);
         } catch (GymException e) {
+            logger.info("Could not delete club with id {}", clubId, e);
             return ResponseEntity.badRequest().body(e.getErrorInfo());
         }
 
-        if (removed == null)
-            return ResponseEntity.badRequest().body("Could not remove club with that ID");
+        // if (removed == null)
+        //     return ResponseEntity.badRequest().body("Could not remove club with that ID");
         return ResponseEntity.ok().body(removed);
     }
 
@@ -111,8 +123,11 @@ public class ClubsController {
     @DeleteMapping("")
     public ResponseEntity<?> removeAllClubs() {
         try {
-            return ResponseEntity.ok().body(service.removeAllClubs());
+            var removed = service.removeAllClubs();
+            logger.info("Deleted all clubs");
+            return ResponseEntity.ok().body(removed);
         } catch (GymException e) {
+            logger.info("Could not delete all clubs");
             return ResponseEntity.badRequest().body(e.getErrorInfo());
         }
     }
@@ -132,17 +147,20 @@ public class ClubsController {
         Club patched;
         try {
             patched = service.patchClub(clubId, club);
+            logger.info("Updated club with id {}", clubId);
         } catch (GymException e) {
+            logger.info("Could not update club with id {}", clubId);
             return ResponseEntity.badRequest().body(e.getErrorInfo());
         }
 
-        if (patched == null)
-            return ResponseEntity.badRequest().body("Could not update club with that ID");
+        // if (patched == null)
+        //     return ResponseEntity.badRequest().body("Could not update club with that ID");
         return ResponseEntity.ok().body(patched);
     }
 
     @GetMapping(value = "/hateoas", produces = "application/hal+json")
     public List<ClubRepresentation> getAllHateoas() {
+        logger.info("returned hateoas for clubs");
         var people = service.getAllClubs();
         return people.stream().map(this::represent).collect(Collectors.toList());
     }

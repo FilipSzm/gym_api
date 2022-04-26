@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 import jwzp_ww_fs.app.util.DefaultValues;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -37,8 +40,9 @@ import jwzp_ww_fs.app.services.EventsInstancesService;
 public class EventsInstanceController {
 
     private final EventsInstancesService service;
-
     private final DefaultValues defaultValues;
+
+    Logger logger = LoggerFactory.getLogger(EventsInstanceController.class);
 
     @Autowired
     public EventsInstanceController(EventsInstancesService service, DefaultValues defaultValues) {
@@ -47,35 +51,43 @@ public class EventsInstanceController {
     }
 
     @ApiResponses(value = {
-    @ApiResponse(content = {
-    @Content(mediaType = "application/json", array = @ArraySchema(schema =
-    @Schema(implementation = EventInstance.class)))
-    }, responseCode = "200", description = "Correctly returned all events")
+            @ApiResponse(content = {
+                    @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = EventInstance.class)))
+            }, responseCode = "200", description = "Correctly returned all events")
     })
     @GetMapping("")
-    public ResponseEntity<?> getAllEventInstances(@Parameter(description = "How to divide return data into pages") Pageable p,
-                                                  @Parameter(description = "Date in the format yyyy-mm-dd to search by")
-                                                      @RequestParam @DateTimeFormat(pattern="yyyy-MM-dd") Optional<LocalDate> date,
-                                                  @Parameter(description = "ID of club to narrow search")
-                                                      @RequestParam Optional<Integer> clubId) {
+    public ResponseEntity<?> getAllEventInstances(
+            @Parameter(description = "How to divide return data into pages") Pageable p,
+            @Parameter(description = "Date in the format yyyy-mm-dd to search by") @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Optional<LocalDate> date,
+            @Parameter(description = "ID of club to narrow search") @RequestParam Optional<Integer> clubId) {
         var out = service.getEventsByParams(p, date, clubId);
 
-        if (p.equals(defaultValues.defaultPageable))
+        if (p.equals(defaultValues.defaultPageable)) {
+            logger.info("Returned list of all events with clubId {} and date {} (no paging)",
+                    clubId.orElse(-1), date.orElse(LocalDate.MIN));
             return new ResponseEntity<>(out.getContent(), HttpStatus.OK);
+        }
 
+        logger.info("Returned list of all events with clubId {} and date {} (paging)",
+                clubId.orElse(-1), date.orElse(LocalDate.MIN));
         return new ResponseEntity<>(out, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public EventInstance getAllEventInstances(@PathVariable long id) {
+        logger.info("Returned event with id {}", id);
         return service.getEventInstanceWithId(id);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<?> updateEventInstance(@PathVariable long id, @org.springframework.web.bind.annotation.RequestBody EventInstanceData newData) {
+    public ResponseEntity<?> updateEventInstance(@PathVariable long id,
+            @org.springframework.web.bind.annotation.RequestBody EventInstanceData newData) {
         try {
-            return ResponseEntity.ok().body(service.updateEventInstance(id, newData));
+            var updated = service.updateEventInstance(id, newData);
+            logger.info("Updated event with id {}", id);
+            return ResponseEntity.ok().body(updated);
         } catch (GymException ex) {
+            logger.info("Could not update event with id {}", id);
             return ResponseEntity.badRequest().body(ex.getErrorInfo());
         }
     }
@@ -83,22 +95,29 @@ public class EventsInstanceController {
     @PostMapping("/{id}")
     public ResponseEntity<?> updateEventInstance(@PathVariable long id) {
         try {
-            return ResponseEntity.ok().body(service.signUpForEvent(id, LocalDate.now()));
+            var signed = service.signUpForEvent(id, LocalDate.now());
+            logger.info("Signed person up for event with id {}", id);
+            return ResponseEntity.ok().body(signed);
         } catch (GymException ex) {
+            logger.info("Could not sign person up for event with id {}", id);
             return ResponseEntity.badRequest().body(ex.getErrorInfo());
         }
     }
 
     @DeleteMapping("")
     public List<EventInstance> deleteAllEventInstances() {
+        logger.info("Removed all events");
         return service.removeAllEvents();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEventInstance(@PathVariable long id) {
         try {
-            return ResponseEntity.ok().body(service.removeEvent(id));
+            var removed = service.removeEvent(id);
+            logger.info("Removed event with id {}", id);
+            return ResponseEntity.ok().body(removed);
         } catch (GymException ex) {
+            logger.info("Could not remove event with id {}", id);
             return ResponseEntity.badRequest().body(ex.getErrorInfo());
         }
     }
