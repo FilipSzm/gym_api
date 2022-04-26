@@ -45,8 +45,11 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
-//	flyway
+	// flyway
 	implementation 'org.flywaydb:flyway-core:8.5.7'
+
+	// logging
+	implementation 'net.logstash.logback:logstash-logback-encoder:7.1'
 }
 
 tasks.named('test') {

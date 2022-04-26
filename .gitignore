@@ -40,3 +40,4 @@ out/
 src/test/resources/manual
 
 *.db
+*.log

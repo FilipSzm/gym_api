@@ -6,6 +6,9 @@ import jwzp_ww_fs.app.models.Coach;
 import jwzp_ww_fs.app.util.DefaultValues;
 import jwzp_ww_fs.app.models.ExceptionInfo;
 import jwzp_ww_fs.app.services.CoachesService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,12 +25,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping({"/api/v1/coaches", "/api/v2/coaches", "api/coaches"})
+@RequestMapping({ "/api/v1/coaches", "/api/v2/coaches", "api/coaches" })
 @Tag(name = "Coaches", description = "Coaches responsible for conducting events in clubs")
 public class CoachesController {
 
     private final CoachesService service;
     private final DefaultValues defaultValues;
+
+    Logger logger = LoggerFactory.getLogger(CoachesController.class);
 
     @Autowired
     public CoachesController(CoachesService service, DefaultValues defaultValues) {
@@ -42,9 +47,12 @@ public class CoachesController {
     })
     @GetMapping("")
     public ResponseEntity<?> getAllCoaches(@Parameter(description = "data for paging") Pageable p) {
-        if (p.equals(defaultValues.defaultPageable))
+        if (p.equals(defaultValues.defaultPageable)) {
+            logger.info("Returned list of all coaches (no paging)");
             return new ResponseEntity<>(service.getAllCoaches(), HttpStatus.OK);
+        }
 
+        logger.info("Returned list of all coaches (paging)");
         return new ResponseEntity<>(service.getAllCoaches(p), HttpStatus.OK);
     }
 
@@ -56,6 +64,7 @@ public class CoachesController {
     @GetMapping("/{coachId}")
     public Coach getCoach(
             @Parameter(required = true, description = "ID of coach to get", in = ParameterIn.PATH) @PathVariable int coachId) {
+        logger.info("Returned coach with id {}", coachId);
         return service.getCoach(coachId);
     }
 
@@ -84,12 +93,15 @@ public class CoachesController {
         Coach deleted;
         try {
             deleted = service.removeCoach(coachId);
+            logger.info("Deleted coach with id {}", coachId);
         } catch (GymException e) {
+            logger.info("Could not delete coach with id {}", coachId);
             return ResponseEntity.badRequest().body(e.getErrorInfo());
         }
 
-        if (deleted == null)
-            return ResponseEntity.badRequest().body("Could not remove coach with that ID");
+        // if (deleted == null)
+        // return ResponseEntity.badRequest().body("Could not remove coach with that
+        // ID");
         return ResponseEntity.ok().body(deleted);
     }
 
@@ -104,8 +116,11 @@ public class CoachesController {
     @DeleteMapping("")
     public ResponseEntity<?> removeAllCoaches() {
         try {
-            return ResponseEntity.ok().body(service.removeAllCoaches());
+            var removed = service.removeAllCoaches();
+            logger.info("Deleted all coaches");
+            return ResponseEntity.ok().body(removed);
         } catch (ClubHasEventsException e) {
+            logger.info("Could not delete all coaches");
             return ResponseEntity.badRequest().body(e.getErrorInfo());
         }
     }
@@ -123,9 +138,10 @@ public class CoachesController {
             @Parameter(required = true, description = "ID of coach to update") @PathVariable int coachId,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Information about coach to add", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Coach.class))) @org.springframework.web.bind.annotation.RequestBody Coach coach) {
         Coach pached = service.patchCoach(coachId, coach);
-
-        if (pached == null)
-            return ResponseEntity.badRequest().body("Could not update coach with that ID");
+        logger.info("Updated coach with id {}", coachId);
+        // if (pached == null)
+        // return ResponseEntity.badRequest().body("Could not update coach with that
+        // ID");
         return ResponseEntity.ok().body(pached);
     }
 }
