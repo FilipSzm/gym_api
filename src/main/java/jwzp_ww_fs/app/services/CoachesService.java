@@ -1,7 +1,6 @@
 package jwzp_ww_fs.app.services;
 
-import jwzp_ww_fs.app.Exceptions.ClubHasEventsException;
-import jwzp_ww_fs.app.Exceptions.CoachHasEventsException;
+import jwzp_ww_fs.app.exceptions.coach.EventAssociatedWithCoachException;
 import jwzp_ww_fs.app.models.Coach;
 import jwzp_ww_fs.app.repositories.CoachRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,19 +50,19 @@ public class CoachesService {
         return repository.save(coachToUpdate);
     }
 
-    synchronized public Coach removeCoach(int coachId) throws CoachHasEventsException {
+    synchronized public Coach removeCoach(int coachId) throws EventAssociatedWithCoachException {
         Coach coach = repository.findById(coachId).orElse(null);
         if (coach == null) return null;
-        if (!coach.isEmpty()) throw new CoachHasEventsException();
+        if (!coach.isEmpty()) throw new EventAssociatedWithCoachException();
 
         repository.deleteById(coachId);
         return coach;
     }
 
-    public List<Coach> removeAllCoaches() throws ClubHasEventsException {
+    public List<Coach> removeAllCoaches() throws EventAssociatedWithCoachException {
         var coaches = repository.findAll();
         for (var coach : coaches)
-            if (!coach.isEmpty()) throw new ClubHasEventsException();
+            if (!coach.isEmpty()) throw new EventAssociatedWithCoachException();
 
         repository.deleteAll();
         return coaches;

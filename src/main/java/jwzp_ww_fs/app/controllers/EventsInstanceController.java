@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import jwzp_ww_fs.app.exceptions.event.EventException;
 import jwzp_ww_fs.app.util.DefaultValues;
 
 import org.slf4j.Logger;
@@ -29,7 +30,6 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.EventInstance;
 import jwzp_ww_fs.app.models.EventInstanceData;
 import jwzp_ww_fs.app.services.EventsInstancesService;
@@ -86,7 +86,7 @@ public class EventsInstanceController {
             var updated = service.updateEventInstance(id, newData);
             logger.info("Updated event with id {}", id);
             return ResponseEntity.ok().body(updated);
-        } catch (GymException ex) {
+        } catch (EventException ex) {
             logger.info("Could not update event with id {}", id);
             return ResponseEntity.badRequest().body(ex.getErrorInfo());
         }
@@ -98,7 +98,7 @@ public class EventsInstanceController {
             var signed = service.signUpForEvent(id, LocalDate.now());
             logger.info("Signed person up for event with id {}", id);
             return ResponseEntity.ok().body(signed);
-        } catch (GymException ex) {
+        } catch (EventException ex) {
             logger.info("Could not sign person up for event with id {}", id);
             return ResponseEntity.badRequest().body(ex.getErrorInfo());
         }
@@ -116,7 +116,7 @@ public class EventsInstanceController {
             var removed = service.removeEvent(id);
             logger.info("Removed event with id {}", id);
             return ResponseEntity.ok().body(removed);
-        } catch (GymException ex) {
+        } catch (EventException ex) {
             logger.info("Could not remove event with id {}", id);
             return ResponseEntity.badRequest().body(ex.getErrorInfo());
         }
@@ -160,7 +160,7 @@ public class EventsInstanceController {
     // try {
     // service.addEvent(event);
     // return ResponseEntity.ok().body(event);
-    // } catch (GymException ex) {
+    // } catch (OldGymException ex) {
     // return ResponseEntity.badRequest().body(ex.getErrorInfo());
     // }
     // }
@@ -233,7 +233,7 @@ public class EventsInstanceController {
     // @org.springframework.web.bind.annotation.RequestBody Event event) {
     // try {
     // return ResponseEntity.ok().body(service.updateEvent(id, event));
-    // } catch (GymException ex) {
+    // } catch (GymExceptionOld ex) {
     // return ResponseEntity.badRequest().body(ex.getErrorInfo());
     // }
     // }

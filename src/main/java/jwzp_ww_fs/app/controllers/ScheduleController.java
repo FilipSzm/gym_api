@@ -3,6 +3,7 @@ package jwzp_ww_fs.app.controllers;
 import java.util.List;
 import java.util.Optional;
 
+import jwzp_ww_fs.app.exceptions.schedule.ScheduleException;
 import jwzp_ww_fs.app.util.DefaultValues;
 
 import org.slf4j.Logger;
@@ -29,8 +30,6 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jwzp_ww_fs.app.Exceptions.EventDoesNotExistException;
-import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.ExceptionInfo;
 import jwzp_ww_fs.app.models.Schedule;
 import jwzp_ww_fs.app.services.ScheduleService;
@@ -63,7 +62,7 @@ public class ScheduleController {
             service.addSchedule(schedule);
             logger.info("Added new item to schedule");
             return ResponseEntity.ok().body(schedule);
-        } catch (GymException ex) {
+        } catch (ScheduleException ex) {
             logger.info("Could not add new item to schedule");
             return ResponseEntity.badRequest().body(ex.getErrorInfo());
         }
@@ -106,7 +105,7 @@ public class ScheduleController {
             var removed = service.removeSchedule(id);
             logger.info("Deleted schedule item with id {}", id);
             return ResponseEntity.ok().body(removed);
-        } catch (EventDoesNotExistException ex) {
+        } catch (ScheduleException ex) {
             logger.info("Could not delete schedule item with id {}", id);
             return ResponseEntity.badRequest().body(ex.getErrorInfo());
         }
@@ -131,7 +130,7 @@ public class ScheduleController {
             var patched = service.updateSchedule(id, schedule);
             logger.info("Updated event with id {}", id);
             return ResponseEntity.ok().body(patched);
-        } catch (GymException ex) {
+        } catch (ScheduleException ex) {
             logger.info("Could not update event with id {}", id);
             return ResponseEntity.badRequest().body(ex.getErrorInfo());
         }

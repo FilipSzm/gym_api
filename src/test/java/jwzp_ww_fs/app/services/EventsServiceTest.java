@@ -1,40 +1,13 @@
 package jwzp_ww_fs.app.services;
 
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
-
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalTime;
-import java.time.Year;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import jwzp_ww_fs.app.models.EventInstance;
 import jwzp_ww_fs.app.repositories.EventsInstancesRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.assertj.core.api.Assertions.*;
+
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.eq;
-
-import jwzp_ww_fs.app.Exceptions.EventCoachOverlapException;
-import jwzp_ww_fs.app.Exceptions.EventDoesNotExistException;
-import jwzp_ww_fs.app.Exceptions.EventNoSuchClubException;
-import jwzp_ww_fs.app.Exceptions.EventNoSuchCoachException;
-import jwzp_ww_fs.app.Exceptions.EventNotInOpeningHoursException;
-import jwzp_ww_fs.app.Exceptions.EventTooLongException;
-import jwzp_ww_fs.app.models.Club;
-import jwzp_ww_fs.app.models.Coach;
 
 @ExtendWith(MockitoExtension.class)
 public class EventsServiceTest {

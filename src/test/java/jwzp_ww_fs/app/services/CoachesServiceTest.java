@@ -20,42 +20,42 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class CoachesServiceTest {
-    @Mock
-    private CoachRepository repository;
-
-    @BeforeEach
-    public void initializeMocks() {
-        var exampleCoaches = List.of(
-                new Coach("N1", "S1", Year.of(2000)),
-                new Coach("N1", "S1", Year.of(2000)),
-                new Coach("N2", "S1", Year.of(2000)),
-                new Coach("N1", "S2", Year.of(2000)),
-                new Coach("N1", "S1", Year.of(2001)),
-                new Coach("N3", "S3", Year.of(2002))
-        );
-
-        lenient().when(repository.save(Mockito.any())).thenAnswer(i -> i.getArguments()[0]);
-
-        lenient().when(repository.findAll()).thenReturn(exampleCoaches);
-    }
-
-    //POST
-
-    @ParameterizedTest(name="POST {0}")
-    @MethodSource("coachesProvider")
-    public void addCoachTest(Coach coachToAdd) {
-        CoachesService service = new CoachesService(repository);
-
-        var uut = service.addCoach(coachToAdd);
-
-        assertThat(uut).isEqualTo(coachToAdd);
-        verify(repository).save(coachToAdd);
-    }
-
-    private static Stream<Arguments> coachesProvider() {
-        return Stream.of(
-                Arguments.of(new Coach("N1", "S1", Year.of(2000))),
-                Arguments.of(new Coach("N4", "S4", Year.of(2007)))
-        );
-    }
+//    @Mock
+//    private CoachRepository repository;
+//
+//    @BeforeEach
+//    public void initializeMocks() {
+//        var exampleCoaches = List.of(
+//                new Coach("N1", "S1", Year.of(2000)),
+//                new Coach("N1", "S1", Year.of(2000)),
+//                new Coach("N2", "S1", Year.of(2000)),
+//                new Coach("N1", "S2", Year.of(2000)),
+//                new Coach("N1", "S1", Year.of(2001)),
+//                new Coach("N3", "S3", Year.of(2002))
+//        );
+//
+//        lenient().when(repository.save(Mockito.any())).thenAnswer(i -> i.getArguments()[0]);
+//
+//        lenient().when(repository.findAll()).thenReturn(exampleCoaches);
+//    }
+//
+//    //POST
+//
+//    @ParameterizedTest(name="POST {0}")
+//    @MethodSource("coachesProvider")
+//    public void addCoachTest(Coach coachToAdd) {
+//        CoachesService service = new CoachesService(repository);
+//
+//        var uut = service.addCoach(coachToAdd);
+//
+//        assertThat(uut).isEqualTo(coachToAdd);
+//        verify(repository).save(coachToAdd);
+//    }
+//
+//    private static Stream<Arguments> coachesProvider() {
+//        return Stream.of(
+//                Arguments.of(new Coach("N1", "S1", Year.of(2000))),
+//                Arguments.of(new Coach("N4", "S4", Year.of(2007)))
+//        );
+//    }
 }

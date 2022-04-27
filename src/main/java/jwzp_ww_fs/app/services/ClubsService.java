@@ -1,7 +1,7 @@
 package jwzp_ww_fs.app.services;
 
-import jwzp_ww_fs.app.Exceptions.ClubHasEventsException;
-import jwzp_ww_fs.app.Exceptions.EventHoursInClubException;
+import jwzp_ww_fs.app.exceptions.club.EventAssociatedWithClubException;
+import jwzp_ww_fs.app.exceptions.club.ProtrudingEventException;
 import jwzp_ww_fs.app.models.*;
 import jwzp_ww_fs.app.models.Schedule;
 import jwzp_ww_fs.app.repositories.ClubsRepository;
@@ -56,10 +56,10 @@ public class ClubsService {
         return repository.save(club);
     }
 
-    public Club patchClub(int clubId, Club club) throws EventHoursInClubException {
+    public Club patchClub(int clubId, Club club) throws ProtrudingEventException {
         var clubToUpdate = repository.findById(clubId).orElse(null);
         if (clubToUpdate == null) return null;
-        if (hoursCollision(clubToUpdate, club)) throw  new EventHoursInClubException();
+        if (hoursCollision(clubToUpdate, club)) throw  new ProtrudingEventException();
 
         clubToUpdate.updateData(club);
         return repository.save(clubToUpdate);
@@ -82,19 +82,19 @@ public class ClubsService {
         return false;
     }
 
-    public Club removeClub(int clubId) throws ClubHasEventsException {
+    public Club removeClub(int clubId) throws EventAssociatedWithClubException {
         Club club = repository.findById(clubId).orElse(null);
         if (club == null) return null;
-        if (!club.isEmpty()) throw new ClubHasEventsException();
+        if (!club.isEmpty()) throw new EventAssociatedWithClubException();
 
         repository.deleteById(clubId);
         return club;
     }
 
-    public List<Club> removeAllClubs() throws ClubHasEventsException {
+    public List<Club> removeAllClubs() throws EventAssociatedWithClubException {
         var clubs = repository.findAll();
         for (var club : clubs)
-            if (!club.isEmpty()) throw new ClubHasEventsException();
+            if (!club.isEmpty()) throw new EventAssociatedWithClubException();
 
         repository.deleteAll();
         return clubs;

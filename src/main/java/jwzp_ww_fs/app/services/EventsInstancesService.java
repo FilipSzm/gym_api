@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
+import jwzp_ww_fs.app.exceptions.event.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,10 +14,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jwzp_ww_fs.app.Exceptions.EventCoachOverlapException;
-import jwzp_ww_fs.app.Exceptions.EventDoesNotExistException;
-import jwzp_ww_fs.app.Exceptions.EventNotInOpeningHoursException;
-import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.EventInstance;
 import jwzp_ww_fs.app.models.EventInstanceData;
 import jwzp_ww_fs.app.models.Schedule;
@@ -108,11 +105,11 @@ public class EventsInstancesService {
         return repository.save(event);
     }
 
-    public EventInstance removeEvent(long eventId) throws EventDoesNotExistException {
+    public EventInstance removeEvent(long eventId) throws NonExistingEventException {
         Optional<EventInstance> eventToRemove = repository.findById(eventId);
 
         if (eventToRemove.isEmpty())
-            throw new EventDoesNotExistException();
+            throw new NonExistingEventException();
 
         EventInstance removedEvent = eventToRemove.get();
 
@@ -129,18 +126,18 @@ public class EventsInstancesService {
     }
 
     @Transactional
-    public EventInstance signUpForEvent(long eventId, LocalDate today) throws GymException {
+    public EventInstance signUpForEvent(long eventId, LocalDate today) throws EventException {
         Optional<EventInstance> eventToUpdate = repository.findById(eventId);
 
         if (eventToUpdate.isEmpty())
-            throw new EventDoesNotExistException();
+            throw new NonExistingEventException();
 
         EventInstance updatedEvent = eventToUpdate.get();
 
         if (updatedEvent.participants() >= updatedEvent.capacity()) {
-            throw new EventDoesNotExistException(); // TODO nowy typ bledu
+            throw new FilledEventException();
         } else if (updatedEvent.date().isBefore(today)) {
-            throw new EventDoesNotExistException(); // TODO nowy typ bledu
+            throw new ConcludedEventException();
         }
 
         repository.incrementParticipantsForEvent(eventId);
@@ -149,16 +146,16 @@ public class EventsInstancesService {
     }
 
     @Transactional
-    public EventInstance updateEventInstance(long eventId, EventInstanceData data) throws GymException {
+    public EventInstance updateEventInstance(long eventId, EventInstanceData data) throws EventException {
         Optional<EventInstance> eventToUpdate = repository.findById(eventId);
 
         if (eventToUpdate.isEmpty())
-            throw new EventDoesNotExistException();
+            throw new NonExistingEventException();
 
         EventInstance updatedEvent = eventToUpdate.get();
 
         if (data.capacity() < updatedEvent.participants()) {
-            throw new EventDoesNotExistException(); // TODO nowy typ bledu
+            throw new NonSufficientCapacityException();
         }
 
         EventInstance tempEvent = new EventInstance("", data.date(), data.time(), updatedEvent.duration(), -1,
@@ -166,9 +163,9 @@ public class EventsInstancesService {
                 updatedEvent.coachId());
 
         if (existsSimultaniousEventWithCoach(tempEvent, updatedEvent))
-            throw new EventCoachOverlapException();
+            throw new AlreadyAssignedCoachException();
         if (!clubsService.isEventInstanceInClubOpeningHours(tempEvent))
-            throw new EventNotInOpeningHoursException();
+            throw new ProtrudingEventException();
 
         repository.setDateAndTimeOfEvent(eventId, data.date(), data.time());
 
