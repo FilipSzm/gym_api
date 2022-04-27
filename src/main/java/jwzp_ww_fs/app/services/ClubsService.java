@@ -122,19 +122,19 @@ public class ClubsService {
             OpeningHours openingHours = getClub(scheduleToAdd.clubId()).whenOpen().get(scheduleToAdd.day());
             if (openingHours.from().equals(openingHours.to())) return true;
             return !openingHours.from().isAfter(beg) && ((!openingHours.to().isBefore(end)) || (openingHours.to().equals(LocalTime.MIDNIGHT)));
-        } else {
-            OpeningHours firstDay = getClub(scheduleToAdd.clubId()).whenOpen().get(scheduleToAdd.day());
-            OpeningHours secondDay = getClub(scheduleToAdd.clubId()).whenOpen().get(scheduleToAdd.day().plus(1));
-
-            boolean firstDayOk, secondDayOk;
-            if (firstDay.from().equals(firstDay.to())) firstDayOk = true;
-            else firstDayOk = !firstDay.from().isAfter(beg) && firstDay.to().equals(LocalTime.MIDNIGHT);
-
-            if (secondDay.from().equals(secondDay.to())) secondDayOk = true;
-            else secondDayOk = secondDay.from().equals(LocalTime.MIDNIGHT) && !secondDay.to().isBefore(end);
-
-            return firstDayOk && secondDayOk;
         }
+
+        OpeningHours firstDay = getClub(scheduleToAdd.clubId()).whenOpen().get(scheduleToAdd.day());
+        OpeningHours secondDay = getClub(scheduleToAdd.clubId()).whenOpen().get(scheduleToAdd.day().plus(1));
+
+        boolean firstDayOk, secondDayOk;
+        if (firstDay.from().equals(firstDay.to())) firstDayOk = true;
+        else firstDayOk = !firstDay.from().isAfter(beg) && firstDay.to().equals(LocalTime.MIDNIGHT);
+
+        if (secondDay.from().equals(secondDay.to())) secondDayOk = true;
+        else secondDayOk = secondDay.from().equals(LocalTime.MIDNIGHT) && !secondDay.to().isBefore(end);
+
+        return firstDayOk && secondDayOk;
     }
 
     public boolean isEventInstanceInClubOpeningHours(EventInstance eventToAdd) {
@@ -145,19 +145,19 @@ public class ClubsService {
             OpeningHours openingHours = getClub(eventToAdd.clubId()).whenOpen().get(eventToAdd.date().getDayOfWeek());
             if (openingHours.from().equals(openingHours.to())) return true;
             return !openingHours.from().isAfter(beg) && ((!openingHours.to().isBefore(end)) || (openingHours.to().equals(LocalTime.MIDNIGHT)));
-        } else {
-            OpeningHours firstDay = getClub(eventToAdd.clubId()).whenOpen().get(eventToAdd.date().getDayOfWeek());
-            OpeningHours secondDay = getClub(eventToAdd.clubId()).whenOpen().get(eventToAdd.date().getDayOfWeek().plus(1));
-
-            boolean firstDayOk, secondDayOk;
-            if (firstDay.from().equals(firstDay.to())) firstDayOk = true;
-            else firstDayOk = !firstDay.from().isAfter(beg) && firstDay.to().equals(LocalTime.MIDNIGHT);
-
-            if (secondDay.from().equals(secondDay.to())) secondDayOk = true;
-            else secondDayOk = secondDay.from().equals(LocalTime.MIDNIGHT) && !secondDay.to().isBefore(end);
-
-            return firstDayOk && secondDayOk;
         }
+
+        OpeningHours firstDay = getClub(eventToAdd.clubId()).whenOpen().get(eventToAdd.date().getDayOfWeek());
+        OpeningHours secondDay = getClub(eventToAdd.clubId()).whenOpen().get(eventToAdd.date().getDayOfWeek().plus(1));
+
+        boolean firstDayOk, secondDayOk;
+        if (firstDay.from().equals(firstDay.to())) firstDayOk = true;
+        else firstDayOk = !firstDay.from().isAfter(beg) && firstDay.to().equals(LocalTime.MIDNIGHT);
+
+        if (secondDay.from().equals(secondDay.to())) secondDayOk = true;
+        else secondDayOk = secondDay.from().equals(LocalTime.MIDNIGHT) && !secondDay.to().isBefore(end);
+
+        return firstDayOk && secondDayOk;
     }
 
     public Page<Club> getPage(Pageable p) {

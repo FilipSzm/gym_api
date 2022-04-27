@@ -9,10 +9,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import jwzp_ww_fs.app.models.Schedule;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
-    public List<Schedule> findScheduleByCoachId(int coachId);
-    public List<Schedule> findScheduleByClubId(int clubId);
-    public List<Schedule> findScheduleByClubIdAndCoachId(int clubId, int coachId);
-    public Page<Schedule> findScheduleByCoachId(Pageable p, int coachId);
-    public Page<Schedule> findScheduleByClubId(Pageable p, int coachId);
-    public Page<Schedule> findScheduleByClubIdAndCoachId(Pageable p, int clubId, int coachId);
+    List<Schedule> findScheduleByCoachId(int coachId);
+    List<Schedule> findScheduleByClubId(int clubId);
+    List<Schedule> findScheduleByClubIdAndCoachId(int clubId, int coachId);
+    Page<Schedule> findScheduleByCoachId(Pageable p, int coachId);
+    Page<Schedule> findScheduleByClubId(Pageable p, int coachId);
+    Page<Schedule> findScheduleByClubIdAndCoachId(Pageable p, int clubId, int coachId);
 }

@@ -38,15 +38,15 @@ import jwzp_ww_fs.app.services.ScheduleService;
 @RestController
 @RequestMapping({ "/api/v1/schedule", "api/schedule" })
 @Tag(name = "Schedules", description = "schedules that are organized in clubs by coaches")
-public class ScheduleControler {
+public class ScheduleController {
 
     private final ScheduleService service;
     private final DefaultValues defaultValues;
 
-    Logger logger = LoggerFactory.getLogger(ScheduleControler.class);
+    Logger logger = LoggerFactory.getLogger(ScheduleController.class);
 
     @Autowired
-    public ScheduleControler(ScheduleService service, DefaultValues defaultValues) {
+    public ScheduleController(ScheduleService service, DefaultValues defaultValues) {
         this.service = service;
         this.defaultValues = defaultValues;
     }
@@ -123,7 +123,10 @@ public class ScheduleControler {
     @PatchMapping("/{id}")
     public ResponseEntity<?> updateSchedule(
             @Parameter(required = true, description = "ID of schedule to update") @PathVariable int id,
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Information about coach to add", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Schedule.class))) @org.springframework.web.bind.annotation.RequestBody Schedule schedule) {
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true, description = "Information about coach to add",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Schedule.class))
+            ) @org.springframework.web.bind.annotation.RequestBody Schedule schedule) {
         try {
             var patched = service.updateSchedule(id, schedule);
             logger.info("Updated event with id {}", id);

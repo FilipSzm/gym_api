@@ -210,20 +210,18 @@ public class EventsInstancesService {
                 .filter(this::isEventNotOverMidnight);
         var eventsNextDay = otherEventsWithCoach.stream().filter(e -> e.date().equals(eventToAdd.date().plusDays(1)));
         if (beg.isBefore(end)) {
-            var fromPrev = eventsPrevDay.filter(e -> e.time().plus(e.duration()).isAfter(beg)).findAny().isPresent();
-            var fromCurrOvernight = eventsSameDayOvernight.filter(e -> e.time().isBefore(end)).findAny().isPresent();
+            var fromPrev = eventsPrevDay.anyMatch(e -> e.time().plus(e.duration()).isAfter(beg));
+            var fromCurrOvernight = eventsSameDayOvernight.anyMatch(e -> e.time().isBefore(end));
             var fromCurr = eventsSameDay
-                    .filter(e -> isDuringEvent(eventToAdd, e.time())
+                    .anyMatch(e -> isDuringEvent(eventToAdd, e.time())
                             || isDuringEvent(eventToAdd, e.time().plus(e.duration()))
-                            || (e.time().isBefore(beg) && e.time().plus(e.duration()).isAfter(end)))
-                    .findAny().isPresent();
+                            || (e.time().isBefore(beg) && e.time().plus(e.duration()).isAfter(end)));
 
             return fromPrev || fromCurrOvernight || fromCurr;
         } else {
-            var fromPrev = eventsPrevDay.filter(e -> e.time().plus(e.duration()).isAfter(beg)).findAny().isPresent();
-            var fromNext = eventsNextDay.filter(e -> e.time().isBefore(end)).findAny().isPresent();
-            var fromCurr = eventsSameDay.filter(e -> e.time().plus(e.duration()).isAfter(beg) || e.time().isAfter(beg))
-                    .findAny().isPresent();
+            var fromPrev = eventsPrevDay.anyMatch(e -> e.time().plus(e.duration()).isAfter(beg));
+            var fromNext = eventsNextDay.anyMatch(e -> e.time().isBefore(end));
+            var fromCurr = eventsSameDay.anyMatch(e -> e.time().plus(e.duration()).isAfter(beg) || e.time().isAfter(beg));
             var fromCurr2 = eventsSameDayOvernight.toList().size() > 0;
             return fromPrev || fromNext || fromCurr || fromCurr2;
         }

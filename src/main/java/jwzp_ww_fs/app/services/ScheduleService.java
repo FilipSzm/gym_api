@@ -35,7 +35,6 @@ public class ScheduleService {
     CoachesService coachesService;
 
     @Autowired
-    //TODO schedule repository
     public ScheduleService(ScheduleRepository repository, ClubsService clubsService, CoachesService coachesService) {
         this.repository = repository;
         this.clubsService = clubsService;
@@ -121,22 +120,21 @@ public class ScheduleService {
                 .filter(this::isScheduleNotOverMidnight);
         var schedulesNextDay = otherSchedulesWithCoach.stream().filter(s -> s.day().equals(scheduleToAdd.day().plus(1)));
         if (beg.isBefore(end)) {
-            var fromPrev = schedulesPrevDay.filter(s -> s.time().plus(s.duration()).isAfter(beg)).findAny().isPresent();
-            var fromCurrOvernight = schedulesSameDayOvernight.filter(s -> s.time().isBefore(end)).findAny().isPresent();
+            var fromPrev = schedulesPrevDay.anyMatch(s -> s.time().plus(s.duration()).isAfter(beg));
+            var fromCurrOvernight = schedulesSameDayOvernight.anyMatch(s -> s.time().isBefore(end));
             var fromCurr = schedulesSameDay
-                    .filter(s -> isDuringSchedule(scheduleToAdd, s.time())
+                    .anyMatch(s -> isDuringSchedule(scheduleToAdd, s.time())
                             || isDuringSchedule(scheduleToAdd, s.time().plus(s.duration()))
-                            || (s.time().isBefore(beg) && s.time().plus(s.duration()).isAfter(end)))
-                    .findAny().isPresent();
+                            || (s.time().isBefore(beg) && s.time().plus(s.duration()).isAfter(end)));
 
             return fromPrev || fromCurrOvernight || fromCurr;
-        } else {
-            var fromPrev = schedulesPrevDay.filter(s -> s.time().plus(s.duration()).isAfter(beg)).findAny().isPresent();
-            var fromNext = schedulesNextDay.filter(s -> s.time().isBefore(end)).findAny().isPresent();
-            var fromCurr = schedulesSameDay.filter(s -> s.time().plus(s.duration()).isAfter(beg) || s.time().isAfter(beg)).findAny().isPresent();
-            var fromCurr2 = schedulesSameDayOvernight.toList().size() > 0;
-            return fromPrev || fromNext || fromCurr || fromCurr2;
         }
+
+        var fromPrev = schedulesPrevDay.anyMatch(s -> s.time().plus(s.duration()).isAfter(beg));
+        var fromNext = schedulesNextDay.anyMatch(s -> s.time().isBefore(end));
+        var fromCurr = schedulesSameDay.anyMatch(s -> s.time().plus(s.duration()).isAfter(beg) || s.time().isAfter(beg));
+        var fromCurr2 = schedulesSameDayOvernight.toList().size() > 0;
+        return fromPrev || fromNext || fromCurr || fromCurr2;
     }
 
     private boolean isScheduleOverMidnight(Schedule s) {
@@ -227,13 +225,13 @@ public class ScheduleService {
 
     public Schedule getSchedule(int id) {
         Optional<Schedule> schedule = repository.findById(id);
-        return schedule.isPresent() ? schedule.get() : null;
+        return schedule.orElse(null);
     }
 
     public Page<Schedule> getPage(Pageable p, Optional<Integer> clubId, Optional<Integer> coachId) {
         if (clubId.isPresent() && coachId.isPresent()) return repository.findScheduleByClubIdAndCoachId(p, clubId.get(), coachId.get());
-        if (clubId.isPresent() && coachId.isEmpty()) return repository.findScheduleByClubId(p, clubId.get());
-        if (clubId.isEmpty() && coachId.isPresent()) return repository.findScheduleByCoachId(p, coachId.get());
+        if (clubId.isPresent()) return repository.findScheduleByClubId(p, clubId.get());
+        if (coachId.isPresent()) return repository.findScheduleByCoachId(p, coachId.get());
         return repository.findAll(p);
     }
 }

@@ -13,32 +13,32 @@ import org.springframework.data.jpa.repository.Query;
 import jwzp_ww_fs.app.models.EventInstance;
 
 public interface EventsInstancesRepository extends JpaRepository<EventInstance, Long> {
-    public List<EventInstance> findEventByClubId(int clubId);
+    List<EventInstance> findEventByClubId(int clubId);
 
-    public List<EventInstance> findEventByCoachId(int coachId);
+    List<EventInstance> findEventByCoachId(int coachId);
 
-    public List<EventInstance> findEventByDate(LocalDate date);
+    List<EventInstance> findEventByDate(LocalDate date);
 
-    public List<EventInstance> findEventByClubIdAndDate(int clubId, LocalDate date);
+    List<EventInstance> findEventByClubIdAndDate(int clubId, LocalDate date);
 
-    public Page<EventInstance> findEventByClubId(Pageable p, int coachId);
+    Page<EventInstance> findEventByClubId(Pageable p, int coachId);
 
-    public Page<EventInstance> findEventByDate(Pageable p, LocalDate date);
+    Page<EventInstance> findEventByDate(Pageable p, LocalDate date);
 
-    public Page<EventInstance> findEventByClubIdAndDate(Pageable p, int clubId, LocalDate date);
+    Page<EventInstance> findEventByClubIdAndDate(Pageable p, int clubId, LocalDate date);
 
     @Modifying
     @Query(value = "update EventInstance e set e.participants = e.participants + 1 where e.id = ?1")
-    public int incrementParticipantsForEvent(long eventId);
+    int incrementParticipantsForEvent(long eventId);
 
     @Modifying
     @Query(value = "update EventInstance e set e.capacity = ?2 where e.id = ?1")
-    public int setCapacityForEvent(long eventId, int capacity);
+    int setCapacityForEvent(long eventId, int capacity);
 
     @Modifying
     @Query(value = "update EventInstance e set e.date = ?2, e.time = ?3 where e.id = ?1")
-    public int setDateAndTimeOfEvent(long eventId, LocalDate date, LocalTime time);
+    int setDateAndTimeOfEvent(long eventId, LocalDate date, LocalTime time);
 
     @Modifying
-    public void deleteEventByDateBefore(LocalDate date);
+    void deleteEventByDateBefore(LocalDate date);
 }
