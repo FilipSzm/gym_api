@@ -1,7 +1,7 @@
 package jwzp_ww_fs.app.controllers;
 
-import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.dto.ClubRepresentation;
+import jwzp_ww_fs.app.exceptions.club.ClubException;
 import jwzp_ww_fs.app.models.Club;
 import jwzp_ww_fs.app.util.DefaultValues;
 import jwzp_ww_fs.app.models.ExceptionInfo;
@@ -102,7 +102,7 @@ public class ClubsController {
         try {
             removed = service.removeClub(clubId);
             logger.info("Deleted club with id {}", clubId);
-        } catch (GymException e) {
+        } catch (ClubException e) {
             logger.info("Could not delete club with id {}", clubId, e);
             return ResponseEntity.badRequest().body(e.getErrorInfo());
         }
@@ -126,7 +126,7 @@ public class ClubsController {
             var removed = service.removeAllClubs();
             logger.info("Deleted all clubs");
             return ResponseEntity.ok().body(removed);
-        } catch (GymException e) {
+        } catch (ClubException e) {
             logger.info("Could not delete all clubs");
             return ResponseEntity.badRequest().body(e.getErrorInfo());
         }
@@ -148,7 +148,7 @@ public class ClubsController {
         try {
             patched = service.patchClub(clubId, club);
             logger.info("Updated club with id {}", clubId);
-        } catch (GymException e) {
+        } catch (ClubException e) {
             logger.info("Could not update club with id {}", clubId);
             return ResponseEntity.badRequest().body(e.getErrorInfo());
         }

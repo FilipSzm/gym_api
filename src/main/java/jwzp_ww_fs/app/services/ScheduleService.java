@@ -9,23 +9,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import jwzp_ww_fs.app.exceptions.schedule.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import jwzp_ww_fs.app.Exceptions.EventCoachOverlapException;
-import jwzp_ww_fs.app.Exceptions.EventDoesNotExistException;
-import jwzp_ww_fs.app.Exceptions.EventNoSuchClubException;
-import jwzp_ww_fs.app.Exceptions.EventNoSuchCoachException;
-import jwzp_ww_fs.app.Exceptions.EventNotInOpeningHoursException;
-import jwzp_ww_fs.app.Exceptions.EventTooLongException;
-import jwzp_ww_fs.app.Exceptions.GymException;
 import jwzp_ww_fs.app.models.OpeningHours;
 import jwzp_ww_fs.app.models.Schedule;
 import jwzp_ww_fs.app.repositories.ScheduleRepository;
-import jwzp_ww_fs.app.services.ClubsService;
-import jwzp_ww_fs.app.services.CoachesService;
 
 @Service
 public class ScheduleService {
@@ -35,19 +27,18 @@ public class ScheduleService {
     CoachesService coachesService;
 
     @Autowired
-    //TODO schedule repository
     public ScheduleService(ScheduleRepository repository, ClubsService clubsService, CoachesService coachesService) {
         this.repository = repository;
         this.clubsService = clubsService;
         this.coachesService = coachesService;
     }
 
-    public Schedule addSchedule(Schedule schedule) throws GymException {
-        if (!existsClubForSchedule(schedule)) throw new EventNoSuchClubException();
-        if (!existsCoachForSchedule(schedule)) throw new EventNoSuchCoachException();
-        if (existsSimultaniousScheduleWithCoach(schedule, null)) throw new EventCoachOverlapException();
-        if (!clubsService.isScheduleInClubOpeningHours(schedule)) throw new EventNotInOpeningHoursException();
-        if (!isScheduleCorrectLength(schedule)) throw new EventTooLongException();
+    public Schedule addSchedule(Schedule schedule) throws ScheduleException {
+        if (!existsClubForSchedule(schedule)) throw new NonExistingClubException();
+        if (!existsCoachForSchedule(schedule)) throw new NonExistingCoachException();
+        if (existsSimultaniousScheduleWithCoach(schedule, null)) throw new AlreadyAssignedCoachException();
+        if (!clubsService.isScheduleInClubOpeningHours(schedule)) throw new ProtrudingScheduleException();
+        if (!isScheduleCorrectLength(schedule)) throw new ExcessivelyLongScheduleException();
 
         clubsService.addEventToClub(schedule.clubId());
         clubsService.setFillLevel(schedule.clubId(), getMinimalOpeningHoursForClub(schedule));
@@ -121,22 +112,21 @@ public class ScheduleService {
                 .filter(this::isScheduleNotOverMidnight);
         var schedulesNextDay = otherSchedulesWithCoach.stream().filter(s -> s.day().equals(scheduleToAdd.day().plus(1)));
         if (beg.isBefore(end)) {
-            var fromPrev = schedulesPrevDay.filter(s -> s.time().plus(s.duration()).isAfter(beg)).findAny().isPresent();
-            var fromCurrOvernight = schedulesSameDayOvernight.filter(s -> s.time().isBefore(end)).findAny().isPresent();
+            var fromPrev = schedulesPrevDay.anyMatch(s -> s.time().plus(s.duration()).isAfter(beg));
+            var fromCurrOvernight = schedulesSameDayOvernight.anyMatch(s -> s.time().isBefore(end));
             var fromCurr = schedulesSameDay
-                    .filter(s -> isDuringSchedule(scheduleToAdd, s.time())
+                    .anyMatch(s -> isDuringSchedule(scheduleToAdd, s.time())
                             || isDuringSchedule(scheduleToAdd, s.time().plus(s.duration()))
-                            || (s.time().isBefore(beg) && s.time().plus(s.duration()).isAfter(end)))
-                    .findAny().isPresent();
+                            || (s.time().isBefore(beg) && s.time().plus(s.duration()).isAfter(end)));
 
             return fromPrev || fromCurrOvernight || fromCurr;
-        } else {
-            var fromPrev = schedulesPrevDay.filter(s -> s.time().plus(s.duration()).isAfter(beg)).findAny().isPresent();
-            var fromNext = schedulesNextDay.filter(s -> s.time().isBefore(end)).findAny().isPresent();
-            var fromCurr = schedulesSameDay.filter(s -> s.time().plus(s.duration()).isAfter(beg) || s.time().isAfter(beg)).findAny().isPresent();
-            var fromCurr2 = schedulesSameDayOvernight.toList().size() > 0;
-            return fromPrev || fromNext || fromCurr || fromCurr2;
         }
+
+        var fromPrev = schedulesPrevDay.anyMatch(s -> s.time().plus(s.duration()).isAfter(beg));
+        var fromNext = schedulesNextDay.anyMatch(s -> s.time().isBefore(end));
+        var fromCurr = schedulesSameDay.anyMatch(s -> s.time().plus(s.duration()).isAfter(beg) || s.time().isAfter(beg));
+        var fromCurr2 = schedulesSameDayOvernight.toList().size() > 0;
+        return fromPrev || fromNext || fromCurr || fromCurr2;
     }
 
     private boolean isScheduleOverMidnight(Schedule s) {
@@ -151,15 +141,13 @@ public class ScheduleService {
         return t.isAfter(s.time()) && t.isBefore(s.time().plus(s.duration()));
     }
 
-    public Schedule removeSchedule(int scheduleId) throws EventDoesNotExistException {
+    public Schedule removeSchedule(int scheduleId) throws NonExistingScheduleException {
         // Event removedEvent = repository.removeScheduleWithId(eventId);
 
-        // if (removedEvent == null)
-        //     throw new EventDoesNotExistException();
-        // return removedEvent;
+
         Optional<Schedule> scheduleToRemove = repository.findById(scheduleId);
 
-        if (scheduleToRemove.isEmpty()) throw new EventDoesNotExistException();
+        if (scheduleToRemove.isEmpty()) throw new NonExistingScheduleException();
 
         Schedule removedSchedule = scheduleToRemove.get();
 
@@ -172,7 +160,7 @@ public class ScheduleService {
 
         for (Schedule s : allSchedules) {
             clubsService.subtractEventFromClub(s.clubId());
-            clubsService.setFillLevel(s.clubId(), new HashMap<DayOfWeek, OpeningHours>());
+            clubsService.setFillLevel(s.clubId(), new HashMap<>());
             coachesService.subtractEventFromCoach(s.coachId());
         }
 
@@ -183,21 +171,21 @@ public class ScheduleService {
         return removedSchedules;
     }
 
-    public Schedule updateSchedule(int scheduleId, Schedule schedule) throws GymException {
+    public Schedule updateSchedule(int scheduleId, Schedule schedule) throws ScheduleException {
         Schedule currentScheduleWithId = getSchedule(scheduleId);
         
-        if (currentScheduleWithId == null) throw new EventDoesNotExistException();
+        if (currentScheduleWithId == null) throw new NonExistingScheduleException();
 
         if (!existsClubForSchedule(schedule))
-            throw new EventNoSuchClubException();
+            throw new NonExistingClubException();
         if (!existsCoachForSchedule(schedule))
-            throw new EventNoSuchCoachException();
+            throw new NonExistingCoachException();
         if (existsSimultaniousScheduleWithCoach(schedule, currentScheduleWithId))
-            throw new EventCoachOverlapException();
+            throw new AlreadyAssignedCoachException();
         if (!clubsService.isScheduleInClubOpeningHours(schedule))
-            throw new EventNotInOpeningHoursException();
+            throw new ProtrudingScheduleException();
         if (!isScheduleCorrectLength(schedule))
-            throw new EventTooLongException();
+            throw new ExcessivelyLongScheduleException();
 
         Schedule scheduleToUpdate = repository.getById(scheduleId);
         scheduleToUpdate.updateData(schedule);
@@ -227,13 +215,13 @@ public class ScheduleService {
 
     public Schedule getSchedule(int id) {
         Optional<Schedule> schedule = repository.findById(id);
-        return schedule.isPresent() ? schedule.get() : null;
+        return schedule.orElse(null);
     }
 
     public Page<Schedule> getPage(Pageable p, Optional<Integer> clubId, Optional<Integer> coachId) {
         if (clubId.isPresent() && coachId.isPresent()) return repository.findScheduleByClubIdAndCoachId(p, clubId.get(), coachId.get());
-        if (clubId.isPresent() && coachId.isEmpty()) return repository.findScheduleByClubId(p, clubId.get());
-        if (clubId.isEmpty() && coachId.isPresent()) return repository.findScheduleByCoachId(p, coachId.get());
+        if (clubId.isPresent()) return repository.findScheduleByClubId(p, clubId.get());
+        if (coachId.isPresent()) return repository.findScheduleByCoachId(p, coachId.get());
         return repository.findAll(p);
     }
 }

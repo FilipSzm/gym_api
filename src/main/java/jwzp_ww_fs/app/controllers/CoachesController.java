@@ -1,7 +1,6 @@
 package jwzp_ww_fs.app.controllers;
 
-import jwzp_ww_fs.app.Exceptions.ClubHasEventsException;
-import jwzp_ww_fs.app.Exceptions.GymException;
+import jwzp_ww_fs.app.exceptions.coach.CoachException;
 import jwzp_ww_fs.app.models.Coach;
 import jwzp_ww_fs.app.util.DefaultValues;
 import jwzp_ww_fs.app.models.ExceptionInfo;
@@ -94,7 +93,7 @@ public class CoachesController {
         try {
             deleted = service.removeCoach(coachId);
             logger.info("Deleted coach with id {}", coachId);
-        } catch (GymException e) {
+        } catch (CoachException e) {
             logger.info("Could not delete coach with id {}", coachId);
             return ResponseEntity.badRequest().body(e.getErrorInfo());
         }
@@ -119,7 +118,7 @@ public class CoachesController {
             var removed = service.removeAllCoaches();
             logger.info("Deleted all coaches");
             return ResponseEntity.ok().body(removed);
-        } catch (ClubHasEventsException e) {
+        } catch (CoachException e) {
             logger.info("Could not delete all coaches");
             return ResponseEntity.badRequest().body(e.getErrorInfo());
         }
