@@ -65,7 +65,7 @@ public class ClubsService {
         return repository.save(clubToUpdate);
     }
 
-    private boolean hoursCollision(Club oldClub, Club newClub) {
+    public boolean hoursCollision(Club oldClub, Club newClub) {
         var newHours = newClub.whenOpen();
         var oldHours = oldClub.fillLevel();
 
