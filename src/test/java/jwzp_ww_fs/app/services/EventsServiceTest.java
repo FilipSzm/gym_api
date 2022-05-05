@@ -9,7 +9,9 @@ import jwzp_ww_fs.app.models.Coach;
 import jwzp_ww_fs.app.models.EventInstance;
 import jwzp_ww_fs.app.models.EventInstanceData;
 import jwzp_ww_fs.app.repositories.EventsInstancesRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -26,6 +28,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -75,48 +78,44 @@ public class EventsServiceTest {
         lenient().when(coachesService.getCoach(2)).thenReturn(null);
     }
 
-//    //POST
-//
-//    @ParameterizedTest(name="exceptions POST {0}")
-//    @MethodSource("incorrectEventsProvider")
-//    public void addEventTestException(EventInstance eventToAdd, boolean inOpeningHours, Class<?> expectedException) {
-//        lenient().when(clubsService.isEventInstanceInClubOpeningHours(Mockito.any())).thenReturn(inOpeningHours);
-//
-//        EventsInstancesService serviceToTest = new EventsInstancesService(repository, clubsService, coachesService, scheduleService);
-//        Throwable thrown = catchThrowable(() -> serviceToTest.addEvent(eventToAdd));
-//
-//        assertThat(thrown).isExactlyInstanceOf(expectedException);
-//    }
-//
-//    private static Stream<Arguments> incorrectEventsProvider() {
-//        return Stream.of(
-//            Arguments.of(new EventInstance("TEST", LocalDate.of(2022, Month.JANUARY, 4), LocalTime.of(15, 30), Duration.ofMinutes(30), 10, 1, 1), true, AlreadyAssignedCoachException.class),
-//            Arguments.of(new EventInstance("TEST", LocalDate.of(2022, Month.JANUARY, 4), LocalTime.of(0, 0), Duration.ofHours(1), 10, 1, 2), true, EventNoSuchCoachException.class),
-//            Arguments.of(new EventInstance("TEST", LocalDate.of(2022, Month.JANUARY, 4), LocalTime.of(0, 0), Duration.ofHours(1), 10, 2, 1), true, EventNoSuchClubException.class),
-//            Arguments.of(new EventInstance("TEST", LocalDate.of(2022, Month.JANUARY, 6), LocalTime.of(23, 0), Duration.ofHours(2), 10, 1, 1), false, EventNotInOpeningHoursException.class),
-//            Arguments.of(new EventInstance("TEST", LocalDate.of(2022, Month.JANUARY, 2), LocalTime.of(7, 0), Duration.ofHours(24).plus(Duration.ofSeconds(1)), 10, 1, 1), true, EventTooLongException.class)
-//        );
-//    }
+    //POST
 
-//    @ParameterizedTest(name="no exceptions POST {0}")
-//    @MethodSource("correctEventsProvider")
-//    public void addEventTestNoException(Event eventToAdd) {
-//        when(clubsService.isEventInClubOpeningHours(Mockito.any())).thenReturn(true);
-//
-//        EventsService serviceToTest = new EventsService(repository, clubsService, coachesService);
-//
-//        assertDoesNotThrow(() -> serviceToTest.addEvent(eventToAdd));
-//    }
-//
-//    private static Stream<Arguments> correctEventsProvider() {
-//        return Stream.of(
-//            Arguments.of(new Event("Exacly Between", DayOfWeek.MONDAY, LocalTime.of(17, 30), Duration.ofHours(6), 1, 1)),
-//            Arguments.of(new Event("Over Midnight", DayOfWeek.FRIDAY, LocalTime.of(6, 0), Duration.ofHours(23), 1, 1)),
-//            Arguments.of(new Event("One Minute", DayOfWeek.FRIDAY, LocalTime.of(6, 0), Duration.ofMinutes(1), 1, 1)),
-//            Arguments.of(new Event("Full Day", DayOfWeek.FRIDAY, LocalTime.of(7, 0), Duration.ofHours(24), 1, 1))
-//        );
-//    }
-//
+    @ParameterizedTest(name="exceptions POST {0}")
+    @MethodSource("incorrectEventsProvider")
+    public void addEventTestException(EventInstance eventToAdd, boolean inOpeningHours, Class<?> expectedException) {
+        lenient().when(clubsService.isEventInstanceInClubOpeningHours(Mockito.any())).thenReturn(inOpeningHours);
+
+        EventsInstancesService serviceToTest = new EventsInstancesService(repository, clubsService, coachesService, scheduleService);
+        Throwable uut = catchThrowable(() -> serviceToTest.addEvent(eventToAdd));
+
+        if (expectedException == null)
+            assertNull(uut);
+        else
+            assertThat(uut).isExactlyInstanceOf(expectedException);
+    }
+
+    private static Stream<Arguments> incorrectEventsProvider() {
+        return Stream.of(
+            Arguments.of(new EventInstance("TEST", LocalDate.of(2022, Month.JANUARY, 4), LocalTime.of(15, 30), Duration.ofMinutes(30), 10, 1, 1), true, null)
+        );
+    }
+
+    @ParameterizedTest(name="no exceptions POST {0}")
+    @MethodSource("correctEventsProvider")
+    public void addEventTestNoException(EventInstance eventToAdd) {
+        lenient().when(clubsService.isEventInstanceInClubOpeningHours(Mockito.any())).thenReturn(true);
+
+        EventsInstancesService serviceToTest = new EventsInstancesService(repository, clubsService, coachesService, scheduleService);
+
+        assertDoesNotThrow(() -> serviceToTest.addEvent(eventToAdd));
+    }
+
+    private static Stream<Arguments> correctEventsProvider() {
+        return Stream.of(
+            Arguments.of(new EventInstance("TEST", LocalDate.of(2022, Month.JANUARY, 4), LocalTime.of(15, 30), Duration.ofMinutes(30), 10, 1, 1))
+        );
+    }
+
     //PATCH
 
     @ParameterizedTest(name="exceptions PATCH {1}")
@@ -136,109 +135,66 @@ public class EventsServiceTest {
         );
     }
 
-//    @ParameterizedTest(name="no exceptions PATCH {1}")
-//    @MethodSource("correctUpdateEventsProvider")
-//    public void updateEventTestNoException(int eventId, Event eventToAdd) {
-//        when(clubsService.isEventInClubOpeningHours(Mockito.any())).thenReturn(true);
-//
-//        EventsService serviceToTest = new EventsService(repository, clubsService, coachesService);
-//
-//        Event oldEvent = assertDoesNotThrow(() -> serviceToTest.updateEvent(eventId, eventToAdd));
-//        assertThat(oldEvent).isEqualTo(repository.getById(eventId));
-//    }
-//
-//    private static Stream<Arguments> correctUpdateEventsProvider() {
-//        return Stream.of(
-//            Arguments.of(1, new Event("Exacly Between", DayOfWeek.MONDAY, LocalTime.of(17, 30), Duration.ofHours(6), 1, 1)),
-//            Arguments.of(1, new Event("Over Midnight", DayOfWeek.FRIDAY, LocalTime.of(6, 0), Duration.ofHours(23), 1, 1)),
-//            Arguments.of(1, new Event("One Minute", DayOfWeek.FRIDAY, LocalTime.of(6, 0), Duration.ofMinutes(1), 1, 1)),
-//            Arguments.of(1, new Event("Full Day", DayOfWeek.FRIDAY, LocalTime.of(7, 0), Duration.ofHours(24), 1, 1))
-//        );
-//    }
-//
-//    //DELETE
-//    @Test
-//    public void deleteEventTestNoException() {
-//        EventsService serviceToTest = new EventsService(repository, clubsService, coachesService);
-//
-//        Event deletedEvent = assertDoesNotThrow(() -> serviceToTest.removeEvent(1));
-//        assertThat(deletedEvent).isEqualTo(repository.getById(1));
-//    }
-//
-//    @Test
-//    public void deleteEventTestException() {
-//        EventsService serviceToTest = new EventsService(repository, clubsService, coachesService);
-//
-//        Throwable thrown = catchThrowable(() -> serviceToTest.removeEvent(2));
-//        assertThat(thrown).isExactlyInstanceOf(EventDoesNotExistException.class);
-//    }
-//
-//    @Test
-//    public void deleteAllEventsTest() {
-//        EventsService serviceToTest = new EventsService(repository, clubsService, coachesService);
-//
-//        List<Event> oldEvent = assertDoesNotThrow(serviceToTest::removeAllEvents);
-//        assertThat(oldEvent).containsExactlyInAnyOrderElementsOf(repository.findAll());
-//    }
-//
-//    //GET
-//
-//    @Test
-//    public void getAllEventsTest() {
-//        EventsService serviceToTest = new EventsService(repository, clubsService, coachesService);
-//
-//        List<Event> events = assertDoesNotThrow(serviceToTest::getAllEvents);
-//        assertThat(events).containsExactlyInAnyOrderElementsOf(repository.findAll());
-//    }
-//
-//    @ParameterizedTest(name="GET coach {0}")
-//    @MethodSource("getEventByCoachProvider")
-//    public void getEventByCoachTest(int coachId) {
-//        List<Event> expectedEvents = repository.findAll().stream().filter(e -> e.coachId() == coachId).toList();
-//
-//        EventsService serviceToTest = new EventsService(repository, clubsService, coachesService);
-//
-//        List<Event> events = assertDoesNotThrow(() -> serviceToTest.getEventsByCoach(coachId));
-//        assertThat(events).containsExactlyInAnyOrderElementsOf(expectedEvents);
-//    }
-//
-//    private static Stream<Arguments> getEventByCoachProvider() {
-//        return Stream.of(
-//            Arguments.of(1), Arguments.of(2), Arguments.of(3)
-//        );
-//    }
-//
-//    @ParameterizedTest(name="GET club {0}")
-//    @MethodSource("getEventByClubProvider")
-//    public void getEventByClubTest(int clubId) {
-//        List<Event> expectedEvents = repository.findAll().stream().filter(e -> e.clubId() == clubId).toList();
-//
-//        EventsService serviceToTest = new EventsService(repository, clubsService, coachesService);
-//
-//        List<Event> events = assertDoesNotThrow(() -> serviceToTest.getEventsByClub(clubId));
-//        assertThat(events).containsExactlyInAnyOrderElementsOf(expectedEvents);
-//    }
-//
-//    private static Stream<Arguments> getEventByClubProvider() {
-//        return Stream.of(
-//            Arguments.of(1), Arguments.of(2), Arguments.of(3)
-//        );
-//    }
-//
-//    @ParameterizedTest(name="GET club {0} coach {1}")
-//    @MethodSource("getEventByClubAndCoachProvider")
-//    public void getEventByClubAndCoachTest(int clubId, int coachId) {
-//        List<Event> expectedEvents = repository.findAll().stream().filter(e -> e.clubId() == clubId && e.coachId() == coachId).toList();
-//
-//        EventsService serviceToTest = new EventsService(repository, clubsService, coachesService);
-//
-//        List<Event> events = assertDoesNotThrow(() -> serviceToTest.getEventsByCoachAndClub(coachId, clubId));
-//        assertThat(events).containsExactlyInAnyOrderElementsOf(expectedEvents);
-//    }
-//
-//    private static Stream<Arguments> getEventByClubAndCoachProvider() {
-//        return Stream.of(
-//            Arguments.of(1,1), Arguments.of(2,1), Arguments.of(1,2), Arguments.of(2,2), Arguments.of(3,1)
-//        );
-//    }
+    @ParameterizedTest(name="no exceptions PATCH {1}")
+    @MethodSource("correctUpdateEventsProvider")
+    public void updateEventTestNoException(long eventId, EventInstanceData eventToAdd, boolean inOpeningHours) {
+        lenient().when(clubsService.isEventInstanceInClubOpeningHours(Mockito.any())).thenReturn(inOpeningHours);
+
+        EventsInstancesService serviceToTest = new EventsInstancesService(repository, clubsService, coachesService, scheduleService);
+
+        EventInstance oldEvent = assertDoesNotThrow(() -> serviceToTest.updateEventInstance(eventId, eventToAdd));
+        assertThat(oldEvent).isEqualTo(repository.getById(eventId));
+    }
+
+    private static Stream<Arguments> correctUpdateEventsProvider() {
+        return Stream.of(
+                Arguments.of(1, new EventInstanceData(10, LocalDate.of(2022, Month.JANUARY, 4), LocalTime.of(14, 30)), true)
+        );
+    }
+
+    //DELETE
+    @Test
+    public void deleteEventTestNoException() {
+        EventsInstancesService serviceToTest = new EventsInstancesService(repository, clubsService, coachesService, scheduleService);
+
+        EventInstance deletedEvent = assertDoesNotThrow(() -> serviceToTest.removeEvent(1));
+
+        assertThat(deletedEvent).isEqualTo(repository.getById(1L));
+    }
+
+    @Test
+    public void deleteEventTestException() {
+        EventsInstancesService serviceToTest = new EventsInstancesService(repository, clubsService, coachesService, scheduleService);
+
+        Throwable thrown = catchThrowable(() -> serviceToTest.removeEvent(2));
+
+        assertThat(thrown).isExactlyInstanceOf(NonExistingEventException.class);
+    }
+
+    @Test
+    public void deleteAllEventsTest() {
+        EventsInstancesService serviceToTest = new EventsInstancesService(repository, clubsService, coachesService, scheduleService);
+
+        List<EventInstance> oldEvent = assertDoesNotThrow(serviceToTest::removeAllEvents);
+        assertThat(oldEvent).containsExactlyInAnyOrderElementsOf(repository.findAll());
+    }
+
+    //GET
+
+    @ParameterizedTest(name="GET event {0}")
+    @MethodSource("getEventProvider")
+    public void getEventTest(int eventId) {
+        EventsInstancesService service = new EventsInstancesService(repository, clubsService, coachesService, scheduleService);
+
+        Throwable uut = Assertions.catchThrowable(() -> service.getEventInstanceWithId(eventId));
+
+        assertNull(uut);
+    }
+
+    private static Stream<Arguments> getEventProvider() {
+        return Stream.of(
+                Arguments.of(1),
+                Arguments.of(2)
+        );
+    }
 }

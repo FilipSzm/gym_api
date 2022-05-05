@@ -179,7 +179,7 @@ public class CoachesServiceTest {
 
     //GET
 
-    @ParameterizedTest(name="GET club {0}")
+    @ParameterizedTest(name="GET coach {0}")
     @MethodSource("getCoachProvider")
     public void getCoachTest(int coachId) {
         CoachesService service = new CoachesService(repository);
