@@ -63,9 +63,12 @@ public class EventsInstancesService {
     ScheduleService scheduleService;
 
     @Autowired
-    public EventsInstancesService(EventsInstancesRepository repository, ClubsService clubsService,
+    public EventsInstancesService(
+            EventsInstancesRepository repository,
+            ClubsService clubsService,
             CoachesService coachesService,
-            ScheduleService scheduleService) {
+            ScheduleService scheduleService
+    ) {
         this.repository = repository;
         this.clubsService = clubsService;
         this.coachesService = coachesService;
@@ -162,7 +165,7 @@ public class EventsInstancesService {
                 updatedEvent.clubId(),
                 updatedEvent.coachId());
 
-        if (existsSimultaniousEventWithCoach(tempEvent, updatedEvent))
+        if (existsSimultaneousEventWithCoach(tempEvent, updatedEvent))
             throw new AlreadyAssignedCoachException();
         if (!clubsService.isEventInstanceInClubOpeningHours(tempEvent))
             throw new ProtrudingEventException();
@@ -189,7 +192,7 @@ public class EventsInstancesService {
             return repository.findEventByClubIdAndDate(p, clubId.get(), date.get());
     }
 
-    private boolean existsSimultaniousEventWithCoach(EventInstance eventToAdd, EventInstance eventToIgnore) {
+    private boolean existsSimultaneousEventWithCoach(EventInstance eventToAdd, EventInstance eventToIgnore) {
         var otherEventsWithCoach = repository.findEventByCoachId(eventToAdd.coachId());
         if (eventToIgnore != null) {
             otherEventsWithCoach = otherEventsWithCoach.stream().filter(e -> !e.equals(eventToIgnore)).toList();
